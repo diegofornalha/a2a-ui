@@ -1,0 +1,28 @@
+{
+    "name": "Guardian Agent",
+    "description": "Sistema de análise e monitoramento A2A para Claude Flow - Detecta problemas, valida implementações e monitora saúde do sistema",
+    "url": "http://localhost:10102/",
+    "version": "1.0.0",
+    "capabilities": [
+        "project_analysis", 
+        "agent_monitoring",
+        "health_check",
+        "system_status", 
+        "a2a_compliance",
+        "real_time_monitoring"
+    ],
+    "endpoints": {
+        "health": "/health",
+        "analyze": "/analyze", 
+        "status": "/status",
+        "monitor": "/monitor",
+        "agents": "/agents/list"
+    },
+    "compatibility": "A2A v1.0",
+    "supported_content_types": ["application/json", "text/plain"],
+    "agent_type": "system_monitor",
+    "port": 10102,
+    "tags": ["monitoring", "analysis", "guardian", "a2a"],
+    "created_at": "2025-01-13T20:30:00Z",
+    "author": "Claude Flow Team"
+}

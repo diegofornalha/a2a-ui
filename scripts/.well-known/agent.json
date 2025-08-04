@@ -1,0 +1,72 @@
+{
+  "@context": "https://a2aprotocol.ai/context/agent.json",
+  "id": "scripts_agent",
+  "name": "ScriptsAgent",
+  "description": "A2A-compliant agent for scripts with universal interoperability",
+  "version": "1.0.0",
+  "protocol_version": "1.0",
+  "created": "2025-07-12T06:49:12.556Z",
+  "capabilities": {
+    "discovery": true,
+    "communication": true,
+    "cooperation": true,
+    "multimodal": false,
+    "real_time": true,
+    "authentication": "none",
+    "encryption": false
+  },
+  "endpoints": {
+    "base_url": "http://localhost:8888/agents/scripts",
+    "discovery": "http://localhost:8888/agents/scripts/discover",
+    "communicate": "http://localhost:8888/agents/scripts/communicate",
+    "delegate": "http://localhost:8888/agents/scripts/delegate",
+    "health": "http://localhost:8888/agents/scripts/health"
+  },
+  "skills": [
+    {
+      "id": "GENERIC",
+      "name": "generic_operations",
+      "description": "Generic operations for scripts"
+    }
+  ],
+  "interoperability": {
+    "platforms": [
+      "LangGraph",
+      "CrewAI",
+      "Semantic Kernel",
+      "MCP"
+    ],
+    "protocols": [
+      "A2A",
+      "MCP",
+      "HTTP",
+      "WebSocket"
+    ],
+    "data_formats": [
+      "JSON",
+      "MessagePack"
+    ],
+    "frameworks": [
+      "Node.js",
+      "Python",
+      "TypeScript"
+    ]
+  },
+  "security": {
+    "authentication_methods": [
+      "none",
+      "api_key"
+    ],
+    "authorization": "open",
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 100
+    }
+  },
+  "metadata": {
+    "project_type": "automation",
+    "compliance_level": "A2A_1.0",
+    "last_updated": "2025-07-12T06:49:12.556Z",
+    "maintainer": "A2A Guardian System"
+  }
+}

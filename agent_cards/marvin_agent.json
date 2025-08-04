@@ -1,0 +1,61 @@
+{
+    "name": "Marvin - Especialista em Extração de Contatos",
+    "description": "Agente inteligente especializado em extrair e estruturar informações de contato de textos em linguagem natural. Converte dados não estruturados em registros organizados com nome, email, telefone, empresa e cargo. Ideal para processar cartões de visita, assinaturas de email, perfis profissionais e textos diversos.",
+    "url": "http://localhost:10030/",
+    "provider": "Marvin AI Framework",
+    "version": "1.0.0",
+    "documentationUrl": "https://docs.askmarvin.ai/",
+    "capabilities": {
+        "streaming": "True",
+        "pushNotifications": "False",
+        "stateTransitionHistory": "False"
+    },
+    "authentication": {
+        "credentials": null,
+        "schemes": [
+            "public"
+        ]
+    },
+    "defaultInputModes": [
+        "text",
+        "text/plain",
+        "application/json"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain",
+        "application/json"
+    ],
+    "skills": [
+        {
+            "id": "extract_contacts",
+            "name": "Extração Inteligente de Contatos",
+            "description": "Extrai e estrutura informações de contato de qualquer texto, identificando nome completo, email, telefone, empresa, cargo e outros dados relevantes. Processa múltiplos formatos e idiomas, validando e normalizando os dados extraídos.",
+            "tags": [
+                "extração de contatos",
+                "processamento de texto",
+                "estruturação de dados",
+                "validação de email",
+                "normalização de telefone",
+                "dados profissionais",
+                "cartão de visita digital",
+                "CRM automation"
+            ],
+            "examples": [
+                "Extrair contato de: 'João Silva, Desenvolvedor Sênior na TechCorp, joao.silva@techcorp.com, (11) 99999-9999'",
+                "Processar cartão de visita: 'Maria Santos | Gerente de Vendas | Empresa XYZ | maria@xyz.com.br | +55 21 98765-4321'",
+                "Analisar assinatura de email: 'Ana Costa, Diretora de Marketing, ana.costa@marketing.com, Tel: (11) 3333-4444'",
+                "Identificar dados de LinkedIn: 'Pedro Oliveira - Engenheiro de Software at Google, pedro.oliveira@gmail.com'",
+                "Extrair de texto livre: 'Entre em contato com Dr. Carlos Mendes, cardiologista, pelo email carlos@clinica.med.br ou telefone (11) 2222-3333'",
+                "Processar múltiplos contatos de uma lista ou diretório"
+            ],
+            "inputModes": [
+                "text",
+                "text/plain"
+            ],
+            "outputModes": [
+                "application/json"
+            ]
+        }
+    ]
+}

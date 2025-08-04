@@ -1,0 +1,28 @@
+{
+  "name": "A2A UI Agent",
+  "description": "Interface de usuário para gerenciamento de agentes A2A",
+  "url": "http://localhost:12000/",
+  "version": "1.0.0",
+  "protocolVersion": "0.2.5",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["text", "application/json"],
+  "defaultOutputModes": ["text", "application/json"],
+  "skills": [
+    {
+      "id": "agent_management",
+      "name": "Gerenciamento de Agentes",
+      "description": "Interface para descobrir, registrar e gerenciar agentes A2A remotos e locais",
+      "tags": ["ui", "management", "agents", "discovery"],
+      "examples": [
+        "Listar agentes disponíveis",
+        "Adicionar agente remoto",
+        "Habilitar/desabilitar agentes locais",
+        "Monitorar status de agentes"
+      ]
+    }
+  ]
+}
