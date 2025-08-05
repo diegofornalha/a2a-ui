@@ -119,12 +119,109 @@ async def send_message(request: Request):
     )
     events.append(event)
     
+    # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS
+    print(f"🔄 Iniciando processamento automático para mensagem: {message.messageId}")
+    try:
+        await process_message_automatically(message)
+        print(f"✅ Processamento automático concluído para: {message.messageId}")
+    except Exception as e:
+        print(f"❌ Erro no processamento automático: {e}")
+        import traceback
+        traceback.print_exc()
+    
     return {
         "result": {
             "message_id": message.messageId,
             "context_id": message.contextId
         }
     }
+
+async def process_message_automatically(message: Message):
+    """Processa mensagens automaticamente e delega para agentes"""
+    import asyncio
+    import httpx
+    
+    print(f"🔍 Iniciando processamento automático para mensagem: {message.messageId}")
+    
+    # Verificar se é uma mensagem de delegação
+    content = ""
+    if message.parts:
+        for part in message.parts:
+            if isinstance(part, dict) and part.get("type") == "text":
+                content += part.get("text", "")
+    
+    print(f"📝 Conteúdo da mensagem: {content}")
+    
+    if "delegue" in content.lower() or "delegate" in content.lower():
+        print(f"🔄 Processando delegação: {content}")
+        
+        # Identificar o agente alvo
+        target_agent = None
+        if "criativo" in content.lower():
+            target_agent = "http://localhost:8003"
+        elif "estrategista" in content.lower():
+            target_agent = "http://localhost:8002"
+        elif "copywriter" in content.lower():
+            target_agent = "http://localhost:8004"
+        elif "otimizador" in content.lower():
+            target_agent = "http://localhost:8005"
+        
+        print(f"🎯 Agente alvo identificado: {target_agent}")
+        
+        if target_agent:
+            try:
+                print(f"📤 Enviando para o Actor/Orchestrator: http://localhost:8001/communicate")
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    # Enviar mensagem para o Actor que coordena os agentes
+                    response = await client.post(
+                        "http://localhost:8001/communicate",
+                        json={
+                            "jsonrpc": "2.0",
+                            "method": "process_request",
+                            "params": {
+                                "query": content,
+                                "conversation_id": message.contextId
+                            },
+                            "id": f"delegation_{message.messageId}"
+                        }
+                    )
+                    
+                    print(f"📥 Resposta do agente: {response.status_code}")
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        print(f"📋 Resultado: {result}")
+                        if result.get("result"):
+                            # Criar resposta do agente
+                            result_text = result["result"]
+                            if isinstance(result_text, dict):
+                                # Se result é um dicionário, extrair o texto
+                                result_text = result_text.get("result", str(result_text))
+                            elif not isinstance(result_text, str):
+                                result_text = str(result_text)
+                            
+                            agent_response = Message(
+                                messageId=f"agent_response_{len(messages) + 1}",
+                                contextId=message.contextId,
+                                role="assistant",
+                                parts=[{"type": "text", "text": result_text}]
+                            )
+                            messages.append(agent_response)
+                            print(f"✅ Resposta do agente: {result_text[:100]}...")
+                        else:
+                            print(f"❌ Agente não retornou resultado válido")
+                    else:
+                        print(f"❌ Erro ao comunicar com agente: {response.status_code}")
+                        print(f"📄 Conteúdo da resposta: {response.text}")
+                        
+            except Exception as e:
+                print(f"❌ Erro ao processar delegação: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print(f"❌ Agente não identificado na mensagem: {content}")
+    else:
+        print(f"📝 Mensagem normal processada: {content[:50]}...")
 
 
 @app.post("/events/get")

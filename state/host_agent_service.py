@@ -143,9 +143,10 @@ async def GetProcessingMessages():
     client = ConversationClient(server_url)
     try:
         response = await client.get_pending_messages(PendingMessageRequest())
-        return dict(response.result)
+        return dict(response.result) if response.result else {}
     except Exception as e:
         print('Error getting pending messages', e)
+    return {}
 
 
 def GetMessageAliases():
@@ -156,9 +157,10 @@ async def GetTasks():
     client = ConversationClient(server_url)
     try:
         response = await client.list_tasks(ListTaskRequest())
-        return response.result
+        return response.result if response.result else []
     except Exception as e:
         print('Failed to list tasks ', e)
+    return []
 
 
 async def ListMessages(conversation_id: str) -> list[Message]:
