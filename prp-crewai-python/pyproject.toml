@@ -1,0 +1,52 @@
+[project]
+name = "prp-crewai-python"
+version = "0.1.0"
+description = "PRP + CrewAI System - Sistema de Agentes para Marketing Digital"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.34.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.10.6",
+    "asyncio>=3.4.3",
+    "python-dotenv>=1.1.0",
+    "openai>=1.98.0",
+    "anthropic>=0.60.0",
+    "langchain>=0.3.0",
+    "crewai>=0.41.0",
+    "pandas>=2.2.0",
+    "numpy>=2.2.5",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "python-multipart>=0.0.20",
+    "websockets>=15.0.1",
+    "rich>=14.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "black>=24.0.0",
+    "ruff>=0.11.2",
+    "mypy>=1.11.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
