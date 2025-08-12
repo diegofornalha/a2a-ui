@@ -1,1 +1,0 @@
-# Guardian Agent - Sistema de Monitoramento de Sustentabilidade A2A
