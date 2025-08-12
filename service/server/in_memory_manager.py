@@ -76,11 +76,11 @@ class InMemoryFakeAgentManager(ApplicationManager):
     async def process_message(self, message: Message):
         self._messages.append(message)
         message_id = message.messageId
-        context_id = message.contextId or ''
+        contextId = message.contextId or ''
         task_id = message.taskId or ''
         if message_id:
             self._pending_message_ids.append(message_id)
-        conversation = self.get_conversation(context_id)
+        conversation = self.get_conversation(contextId)
         if conversation:
             conversation.messages.append(message)
         self._events.append(
@@ -96,7 +96,7 @@ class InMemoryFakeAgentManager(ApplicationManager):
         # incoming message (with ids attached).
         task = Task(
             id=task_id,
-            contextId=context_id,
+            contextId=contextId,
             status=TaskStatus(
                 state=TaskState.submitted,
                 message=message,

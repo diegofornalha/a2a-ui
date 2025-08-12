@@ -197,7 +197,7 @@ async def UpdateAppState(state: AppState, conversation_id: str):
         for task in await GetTasks():
             state.task_list.append(
                 SessionTask(
-                    context_id=extract_conversation_id(task),
+                    contextId=extract_conversation_id(task),
                     task=convert_task_to_state(task),
                 )
             )
@@ -239,7 +239,7 @@ def convert_message_to_state(message: Message) -> StateMessage:
 
     return StateMessage(
         message_id=message.messageId,
-        context_id=message.contextId if message.contextId else '',
+        contextId=message.contextId if message.contextId else '',
         task_id=message.taskId if message.taskId else '',
         role=message.role.name,
         content=extract_content(message.parts),
@@ -267,11 +267,11 @@ def convert_task_to_state(task: Task) -> StateTask:
     if not task.history:
         return StateTask(
             task_id=task.id,
-            context_id=task.contextId,
+            contextId=task.contextId,
             state=TaskState.failed.name,
             message=StateMessage(
                 message_id=str(uuid.uuid4()),
-                context_id=task.contextId,
+                contextId=task.contextId,
                 task_id=task.id,
                 role=Role.agent.name,
                 content=[('No history', 'text')],
@@ -284,7 +284,7 @@ def convert_task_to_state(task: Task) -> StateTask:
         output = [extract_content(last_message.parts)] + output
     return StateTask(
         task_id=task.id,
-        context_id=task.contextId,
+        contextId=task.contextId,
         state=str(task.status.state),
         message=convert_message_to_state(message),
         artifacts=output,
@@ -293,7 +293,7 @@ def convert_task_to_state(task: Task) -> StateTask:
 
 def convert_event_to_state(event: Event) -> StateEvent:
     return StateEvent(
-        context_id=extract_message_conversation(event.content),
+        contextId=extract_message_conversation(event.content),
         actor=event.actor,
         role=event.content.role.name,
         id=event.id,

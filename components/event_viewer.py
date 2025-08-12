@@ -30,7 +30,7 @@ def event_list():
     events = asyncio.run(GetEvents())
     for e in events:
         event = convert_event_to_state(e)
-        df_data['Conversation ID'].append(event.context_id)
+        df_data['Conversation ID'].append(event.contextId)
         df_data['Role'].append(event.role)
         df_data['Id'].append(event.id)
         df_data['Content'].append(flatten_content(event.content))

@@ -33,7 +33,7 @@ class OrchestratorAgent(BaseAgent):
         self.results = []
         self.travel_context = {}
         self.query_history = []
-        self.context_id = None
+        self.contextId = None
 
     async def generate_summary(self) -> str:
         client = genai.Client()
@@ -67,13 +67,13 @@ class OrchestratorAgent(BaseAgent):
         return '{"can_answer": "no", "answer": "Cannot answer based on provided context"}'
 
     def set_node_attributes(
-        self, node_id, task_id=None, context_id=None, query=None
+        self, node_id, task_id=None, contextId=None, query=None
     ):
         attr_val = {}
         if task_id:
             attr_val['task_id'] = task_id
-        if context_id:
-            attr_val['context_id'] = context_id
+        if contextId:
+            attr_val['contextId'] = contextId
         if query:
             attr_val['query'] = query
 
@@ -82,7 +82,7 @@ class OrchestratorAgent(BaseAgent):
     def add_graph_node(
         self,
         task_id,
-        context_id,
+        contextId,
         query: str,
         node_id: str = None,
         node_key: str = None,
@@ -95,7 +95,7 @@ class OrchestratorAgent(BaseAgent):
         self.graph.add_node(node)
         if node_id:
             self.graph.add_edge(node_id, node.id)
-        self.set_node_attributes(node.id, task_id, context_id, query)
+        self.set_node_attributes(node.id, task_id, contextId, query)
         return node
 
     def clear_state(self):
@@ -105,18 +105,18 @@ class OrchestratorAgent(BaseAgent):
         self.query_history.clear()
 
     async def stream(
-        self, query, context_id, task_id
+        self, query, contextId, task_id
     ) -> AsyncIterable[dict[str, any]]:
         """Execute and stream response."""
         logger.info(
-            f'Running {self.agent_name} stream for session {context_id}, task {task_id} - {query}'
+            f'Running {self.agent_name} stream for session {contextId}, task {task_id} - {query}'
         )
         if not query:
             raise ValueError('Query cannot be empty')
-        if self.context_id != context_id:
+        if self.contextId != contextId:
             # Clear state when the context changes
             self.clear_state()
-            self.context_id = context_id
+            self.contextId = contextId
 
         self.query_history.append(query)
         start_node_id = None
@@ -125,7 +125,7 @@ class OrchestratorAgent(BaseAgent):
             self.graph = WorkflowGraph()
             planner_node = self.add_graph_node(
                 task_id=task_id,
-                context_id=context_id,
+                contextId=contextId,
                 query=query,
                 node_key='planner',
                 node_label='Planner',
@@ -145,7 +145,7 @@ class OrchestratorAgent(BaseAgent):
             self.set_node_attributes(
                 node_id=start_node_id,
                 task_id=task_id,
-                context_id=context_id,
+                contextId=contextId,
             )
             # Resume workflow, used when the workflow nodes are updated.
             should_resume_workflow = False
@@ -157,11 +157,11 @@ class OrchestratorAgent(BaseAgent):
                     # Check if the node is complete and continue to the next node
                     if isinstance(chunk.root.result, TaskStatusUpdateEvent):
                         task_status_event = chunk.root.result
-                        context_id = task_status_event.contextId
+                        contextId = task_status_event.contextId
                         if (
                             task_status_event.status.state
                             == TaskState.completed
-                            and context_id
+                            and contextId
                         ):
                             ## yeild??
                             continue
@@ -210,7 +210,7 @@ class OrchestratorAgent(BaseAgent):
                             ):
                                 node = self.add_graph_node(
                                     task_id=task_id,
-                                    context_id=context_id,
+                                    contextId=contextId,
                                     query=task_data['description'],
                                     node_id=current_node_id,
                                 )

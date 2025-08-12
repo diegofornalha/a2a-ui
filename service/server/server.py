@@ -129,7 +129,7 @@ class ConversationServer:
         return SendMessageResponse(
             result=MessageInfo(
                 message_id=message.messageId,
-                context_id=message.contextId if message.contextId else '',
+                contextId=message.contextId if message.contextId else '',
             )
         )
 

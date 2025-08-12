@@ -123,8 +123,22 @@ async def send_message(request: Request):
     )
     events.append(event)
     
-    # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS
+    # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS EM BACKGROUND
     print(f"🔄 Iniciando processamento automático para mensagem: {message.messageId}")
+    
+    # Criar task assíncrona para processar em background
+    asyncio.create_task(process_message_in_background(message))
+    
+    # Retornar imediatamente sem aguardar processamento
+    return {
+        "result": {
+            "message_id": message.messageId,
+            "contextId": message.contextId
+        }
+    }
+
+async def process_message_in_background(message: Message):
+    """Processa mensagem em background"""
     try:
         await process_message_automatically(message)
         print(f"✅ Processamento automático concluído para: {message.messageId}")
@@ -132,13 +146,6 @@ async def send_message(request: Request):
         print(f"❌ Erro no processamento automático: {e}")
         import traceback
         traceback.print_exc()
-    
-    return {
-        "result": {
-            "message_id": message.messageId,
-            "contextId": message.contextId
-        }
-    }
 
 async def process_message_automatically(message: Message):
     """Processa mensagens automaticamente e delega para agentes"""
@@ -183,7 +190,7 @@ async def process_message_automatically(message: Message):
                 # Criar evento para a resposta
                 response_event = Event(
                     id=f"event_{len(events) + 1}",
-                    context_id=message.contextId,
+                    contextId=message.contextId,
                     role="assistant",
                     actor="claude",
                     content=[{"type": "text", "text": response.get("content", "")}],

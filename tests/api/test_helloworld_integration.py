@@ -176,7 +176,7 @@ class TestHelloworldIntegration:
             "Goodbye"
         ]
         
-        context_id = "helloworld-conversation-001"
+        contextId = "helloworld-conversation-001"
         
         for i, message_text in enumerate(messages):
             message = {
@@ -188,7 +188,7 @@ class TestHelloworldIntegration:
                     }
                 ],
                 "messageId": f"helloworld-msg-{i+1:03d}",
-                "contextId": context_id
+                "contextId": contextId
             }
             
             request_data = jsonrpc_request_template.copy()
