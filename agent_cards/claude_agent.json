@@ -1,0 +1,67 @@
+{
+  "id": "claude-agent",
+  "name": "Claude Assistant",
+  "version": "1.0.0",
+  "description": "Claude AI Assistant - Advanced AI agent using Claude CLI without API key requirement",
+  "type": "assistant",
+  "category": "ai",
+  "capabilities": [
+    "chat",
+    "code_generation",
+    "code_analysis",
+    "question_answering",
+    "task_execution",
+    "streaming_response"
+  ],
+  "endpoint": "http://localhost:12000/claude",
+  "status": "ready",
+  "priority": 100,
+  "metadata": {
+    "uses_cli": true,
+    "requires_api_key": false,
+    "supports_streaming": true,
+    "supports_sessions": true,
+    "languages_supported": [
+      "python",
+      "javascript",
+      "typescript",
+      "java",
+      "cpp",
+      "go",
+      "rust"
+    ],
+    "analysis_types": [
+      "analyze",
+      "review",
+      "optimize",
+      "explain"
+    ]
+  },
+  "communication": {
+    "protocol": "http",
+    "methods": [
+      "POST /claude/query",
+      "POST /claude/generate",
+      "POST /claude/analyze",
+      "POST /claude/execute",
+      "GET /claude/stream",
+      "GET /claude/status",
+      "GET /claude/sessions",
+      "GET /claude/info"
+    ]
+  },
+  "configuration": {
+    "max_tokens": 4096,
+    "temperature": 0.7,
+    "timeout": 30000,
+    "retry_attempts": 3
+  },
+  "tags": [
+    "ai",
+    "assistant",
+    "claude",
+    "code",
+    "chat",
+    "no-api-key"
+  ]
+}

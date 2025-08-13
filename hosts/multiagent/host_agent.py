@@ -115,7 +115,7 @@ Current agent: {current_agent['active_agent']}
     def check_state(self, context: ReadonlyContext):
         state = context.state
         if (
-            'context_id' in state
+            'contextId' in state
             and 'session_active' in state
             and state['session_active']
             and 'agent' in state
@@ -165,7 +165,7 @@ Current agent: {current_agent['active_agent']}
         if not client:
             raise ValueError(f'Client not available for {agent_name}')
         taskId = state.get('task_id', None)
-        contextId = state.get('context_id', None)
+        contextId = state.get('contextId', None)
         messageId = state.get('message_id', None)
         task: Task
         if not messageId:
@@ -195,7 +195,7 @@ Current agent: {current_agent['active_agent']}
             TaskState.unknown,
         ]
         if task.contextId:
-            state['context_id'] = task.contextId
+            state['contextId'] = task.contextId
         state['task_id'] = task.id
         if task.status.state == TaskState.input_required:
             # Force user input back

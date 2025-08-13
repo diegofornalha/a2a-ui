@@ -7,18 +7,22 @@ import asyncio
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+
+# Import Claude service
+from service.server.claude_service import get_claude_service
 
 
 class Event(BaseModel):
     """Modelo de evento"""
     id: str
-    context_id: str
+    contextId: str
     role: str
     actor: str
     content: List[Dict[str, Any]]
@@ -44,7 +48,7 @@ class Message(BaseModel):
 class Task(BaseModel):
     """Modelo de tarefa"""
     id: str
-    context_id: str
+    contextId: str
     state: str
     description: str
 
@@ -111,7 +115,7 @@ async def send_message(request: Request):
     # Criar evento associado
     event = Event(
         id=f"event_{len(events) + 1}",
-        context_id=message.contextId,
+        contextId=message.contextId,
         role=message.role,
         actor="user",
         content=message.parts,
@@ -119,8 +123,22 @@ async def send_message(request: Request):
     )
     events.append(event)
     
-    # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS
+    # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS EM BACKGROUND
     print(f"🔄 Iniciando processamento automático para mensagem: {message.messageId}")
+    
+    # Criar task assíncrona para processar em background
+    asyncio.create_task(process_message_in_background(message))
+    
+    # Retornar imediatamente sem aguardar processamento
+    return {
+        "result": {
+            "message_id": message.messageId,
+            "contextId": message.contextId
+        }
+    }
+
+async def process_message_in_background(message: Message):
+    """Processa mensagem em background"""
     try:
         await process_message_automatically(message)
         print(f"✅ Processamento automático concluído para: {message.messageId}")
@@ -128,18 +146,12 @@ async def send_message(request: Request):
         print(f"❌ Erro no processamento automático: {e}")
         import traceback
         traceback.print_exc()
-    
-    return {
-        "result": {
-            "message_id": message.messageId,
-            "context_id": message.contextId
-        }
-    }
 
 async def process_message_automatically(message: Message):
     """Processa mensagens automaticamente e delega para agentes"""
     import asyncio
     import httpx
+    from service.server.claude_service import get_claude_service
     
     print(f"🔍 Iniciando processamento automático para mensagem: {message.messageId}")
     
@@ -152,6 +164,69 @@ async def process_message_automatically(message: Message):
     
     print(f"📝 Conteúdo da mensagem: {content}")
     
+    # SEMPRE usar o Claude para processar mensagens (não apenas delegações)
+    if content.strip():
+        try:
+            print(f"🤖 Processando com Claude Assistant...")
+            
+            # Usar o serviço Claude
+            claude_service = get_claude_service()
+            response = await claude_service.handle_query(
+                query=content,
+                session_id=message.contextId,
+                context={"conversation_id": message.contextId}
+            )
+            
+            if response.get("success"):
+                # Criar resposta do Claude
+                claude_response = Message(
+                    messageId=f"claude_response_{len(messages) + 1}",
+                    contextId=message.contextId,
+                    role="assistant",
+                    parts=[{"type": "text", "text": response.get("content", "")}]
+                )
+                messages.append(claude_response)
+                
+                # Criar evento para a resposta
+                response_event = Event(
+                    id=f"event_{len(events) + 1}",
+                    contextId=message.contextId,
+                    role="assistant",
+                    actor="claude",
+                    content=[{"type": "text", "text": response.get("content", "")}],
+                    timestamp=datetime.now().isoformat()
+                )
+                events.append(response_event)
+                
+                print(f"✅ Claude respondeu: {response.get('content', '')[:100]}...")
+            else:
+                print(f"❌ Claude erro: {response.get('error')}")
+                # Criar mensagem de erro
+                error_response = Message(
+                    messageId=f"error_response_{len(messages) + 1}",
+                    contextId=message.contextId,
+                    role="assistant",
+                    parts=[{"type": "text", "text": f"Desculpe, ocorreu um erro: {response.get('error')}"}]
+                )
+                messages.append(error_response)
+                
+        except Exception as e:
+            print(f"❌ Erro ao processar com Claude: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # Criar mensagem de erro
+            error_response = Message(
+                messageId=f"error_response_{len(messages) + 1}",
+                contextId=message.contextId,
+                role="assistant",
+                parts=[{"type": "text", "text": f"Desculpe, ocorreu um erro ao processar sua mensagem: {str(e)}"}]
+            )
+            messages.append(error_response)
+            
+        return
+    
+    # Código antigo de delegação (mantido como fallback se precisar)
     if "delegue" in content.lower() or "delegate" in content.lower():
         print(f"🔄 Processando delegação: {content}")
         
@@ -363,6 +438,103 @@ async def update_api_key(request: Request):
     return {"result": {"success": True}}
 
 
+# ===== CLAUDE ENDPOINTS =====
+
+@app.post("/claude/query")
+async def claude_query(request: Request):
+    """Processa uma query usando Claude CLI"""
+    data = await request.json()
+    query = data.get("query", "")
+    session_id = data.get("session_id")
+    context = data.get("context")
+    
+    claude_service = get_claude_service()
+    result = await claude_service.handle_query(query, session_id, context)
+    
+    return {"result": result}
+
+
+@app.post("/claude/generate")
+async def claude_generate_code(request: Request):
+    """Gera código usando Claude"""
+    data = await request.json()
+    description = data.get("description", "")
+    language = data.get("language", "python")
+    framework = data.get("framework")
+    
+    claude_service = get_claude_service()
+    result = await claude_service.generate_code(description, language, framework)
+    
+    return {"result": result}
+
+
+@app.post("/claude/analyze")
+async def claude_analyze_code(request: Request):
+    """Analisa código usando Claude"""
+    data = await request.json()
+    code = data.get("code", "")
+    language = data.get("language", "python")
+    analysis_type = data.get("analysis_type", "analyze")
+    
+    claude_service = get_claude_service()
+    result = await claude_service.analyze_code(code, language, analysis_type)
+    
+    return {"result": result}
+
+
+@app.post("/claude/execute")
+async def claude_execute_task(request: Request):
+    """Executa tarefa com coordenação A2A"""
+    data = await request.json()
+    task = data.get("task", "")
+    agents = data.get("agents")
+    
+    claude_service = get_claude_service()
+    result = await claude_service.execute_a2a_task(task, agents)
+    
+    return {"result": result}
+
+
+@app.get("/claude/stream")
+async def claude_stream(prompt: str, session_id: Optional[str] = None):
+    """Stream de resposta do Claude"""
+    async def generate():
+        claude_service = get_claude_service()
+        async for chunk in claude_service.stream_response(prompt, session_id):
+            yield json.dumps(chunk) + "\n"
+    
+    return StreamingResponse(generate(), media_type="application/x-ndjson")
+
+
+@app.get("/claude/status")
+async def claude_status():
+    """Retorna status do serviço Claude"""
+    claude_service = get_claude_service()
+    return {"result": claude_service.get_status()}
+
+
+@app.get("/claude/sessions")
+async def claude_sessions():
+    """Lista sessões ativas do Claude"""
+    claude_service = get_claude_service()
+    return {"result": claude_service.list_sessions()}
+
+
+@app.delete("/claude/session/{session_id}")
+async def claude_clear_session(session_id: str):
+    """Limpa uma sessão do Claude"""
+    claude_service = get_claude_service()
+    success = claude_service.clear_session(session_id)
+    return {"result": {"success": success}}
+
+
+@app.get("/claude/info")
+async def claude_agent_info():
+    """Retorna informações do agente Claude"""
+    claude_service = get_claude_service()
+    return {"result": claude_service.get_agent_info()}
+
+
 if __name__ == "__main__":
     print("🚀 Iniciando Servidor Backend A2A na porta 8085...")
     print("📡 Endpoints disponíveis:")
@@ -375,8 +547,19 @@ if __name__ == "__main__":
     print("   - POST /agent/list")
     print("   - POST /agent/refresh")
     print("")
+    print("🤖 Endpoints Claude:")
+    print("   - POST /claude/query")
+    print("   - POST /claude/generate")
+    print("   - POST /claude/analyze")
+    print("   - POST /claude/execute")
+    print("   - GET  /claude/stream")
+    print("   - GET  /claude/status")
+    print("   - GET  /claude/sessions")
+    print("   - GET  /claude/info")
+    print("")
     print("🔗 URL: http://localhost:8085")
     print("📊 Health Check: http://localhost:8085/health")
+    print("🤖 Claude Status: http://localhost:8085/claude/status")
     print("")
     
     uvicorn.run(

@@ -1,0 +1,5 @@
+# Dependências para testes de API A2A
+pytest>=7.0.0
+requests>=2.28.0
+pytest-html>=3.1.0
+pytest-cov>=4.0.0

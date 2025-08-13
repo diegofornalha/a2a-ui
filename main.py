@@ -147,6 +147,7 @@ def task_page():
     task_list_page(me.state(AppState))
 
 
+
 class HTTPXClientWrapper:
     """Wrapper to return the singleton client where needed."""
 

@@ -81,7 +81,7 @@ async def cli(
 
         continue_loop = True
         streaming = card.capabilities.streaming
-        context_id = session if session > 0 else uuid4().hex
+        contextId = session if session > 0 else uuid4().hex
 
         while continue_loop:
             print('=========  starting a new task ======== ')
@@ -92,7 +92,7 @@ async def cli(
                 notification_receiver_host,
                 notification_receiver_port,
                 None,
-                context_id,
+                contextId,
             )
 
             if history and continue_loop:
