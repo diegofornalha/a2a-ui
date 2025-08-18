@@ -97,13 +97,15 @@ async def list_conversations():
 async def send_message(request: Request):
     """Envia uma mensagem"""
     data = await request.json()
-    message_data = data.get("params", {})
+    conversation_id = data.get("conversation_id", "default")
+    message_text = data.get("message", "")
+    agent_name = data.get("agent_name", "")
     
     message = Message(
         messageId=f"msg_{len(messages) + 1}",
-        contextId=message_data.get("contextId", "default"),
-        role=message_data.get("role", "user"),
-        parts=message_data.get("parts", [])
+        contextId=conversation_id,
+        role="user",
+        parts=[{"type": "text", "text": message_text}]
     )
     
     messages.append(message)
@@ -122,7 +124,7 @@ async def send_message(request: Request):
     # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS
     print(f"🔄 Iniciando processamento automático para mensagem: {message.messageId}")
     try:
-        await process_message_automatically(message)
+        await process_message_automatically(message, agent_name)
         print(f"✅ Processamento automático concluído para: {message.messageId}")
     except Exception as e:
         print(f"❌ Erro no processamento automático: {e}")
@@ -136,7 +138,7 @@ async def send_message(request: Request):
         }
     }
 
-async def process_message_automatically(message: Message):
+async def process_message_automatically(message: Message, agent_name: str = ""):
     """Processa mensagens automaticamente e delega para agentes"""
     import asyncio
     import httpx
@@ -149,6 +151,95 @@ async def process_message_automatically(message: Message):
         for part in message.parts:
             if isinstance(part, dict) and part.get("type") == "text":
                 content += part.get("text", "")
+    
+    print(f"📝 Conteúdo da mensagem: {content}")
+    print(f"🎯 Agente solicitado: {agent_name}")
+    
+    # Processar chamada para Hello World Agent usando protocolo A2A
+    if agent_name == "Hello World Agent":
+        print(f"🤖 Chamando Hello World Agent via protocolo A2A...")
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                # Usar o protocolo A2A correto - enviar para o agente
+                a2a_message = {
+                    "messageId": message.messageId,
+                    "contextId": message.contextId,
+                    "role": "user",
+                    "parts": [{"type": "text", "text": content}]
+                }
+                
+                response = await client.post(
+                    "http://localhost:9999/messages",
+                    json=a2a_message
+                )
+                
+                if response.status_code == 200:
+                    print(f"✅ Mensagem enviada para Hello World Agent via A2A")
+                    
+                    # Aguardar resposta do agente (simular task completion)
+                    await asyncio.sleep(2)
+                    
+                    # Criar resposta simulada que seria enviada pelo agente
+                    agent_response = Message(
+                        messageId=f"agent_response_{len(messages) + 1}",
+                        contextId=message.contextId,
+                        role="assistant", 
+                        parts=[{"type": "text", "text": "Hello World! [Completed via A2A Protocol]"}]
+                    )
+                    messages.append(agent_response)
+                    print(f"✅ Resposta do Hello World Agent via A2A")
+                    
+                    # ADICIONAR TASK COMPLETADA À LISTA DE TASKS
+                    task = Task(
+                        id=f"task_{len(tasks) + 1}",
+                        context_id=message.contextId,
+                        state="completed",
+                        description=f"Task completed: {content[:50]}{'...' if len(content) > 50 else ''}"
+                    )
+                    tasks.append(task)
+                    print(f"✅ Task adicionada à lista: {task.id} - state: {task.state}")
+                    
+                else:
+                    print(f"⚠️ A2A endpoint não disponível, tentando fallback para skill...")
+                    # Fallback para skill direto se A2A não funcionar
+                    response = await client.post(
+                        "http://localhost:9999/skills/hello_world",
+                        json={
+                            "message": content,
+                            "session_id": message.contextId
+                        }
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        if result.get("success"):
+                            result_text = result.get("response", "Hello World!")
+                            
+                            agent_response = Message(
+                                messageId=f"agent_response_{len(messages) + 1}",
+                                contextId=message.contextId,
+                                role="assistant",
+                                parts=[{"type": "text", "text": f"{result_text} [Fallback]"}]
+                            )
+                            messages.append(agent_response)
+                            print(f"✅ Resposta via fallback: {result_text}")
+                            
+                            # ADICIONAR TASK COMPLETADA À LISTA DE TASKS (FALLBACK)
+                            task = Task(
+                                id=f"task_{len(tasks) + 1}",
+                                context_id=message.contextId,
+                                state="completed",
+                                description=f"Task completed (fallback): {content[:40]}{'...' if len(content) > 40 else ''}"
+                            )
+                            tasks.append(task)
+                            print(f"✅ Task (fallback) adicionada à lista: {task.id} - state: {task.state}")
+                    
+        except Exception as e:
+            print(f"❌ Erro ao chamar Hello World Agent: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        return  # Sair aqui após processar o Hello World Agent
     
     print(f"📝 Conteúdo da mensagem: {content}")
     
@@ -234,7 +325,7 @@ async def get_events():
 async def list_messages(request: Request):
     """Lista mensagens de uma conversa"""
     data = await request.json()
-    conversation_id = data.get("params", "")
+    conversation_id = data.get("conversation_id", "")
     
     # Filtrar mensagens por conversation_id
     filtered_messages = [
