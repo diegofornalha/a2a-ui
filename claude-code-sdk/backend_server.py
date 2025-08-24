@@ -16,6 +16,9 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 # Import Claude service
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from service.server.claude_service import get_claude_service
 
 
