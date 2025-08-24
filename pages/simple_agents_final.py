@@ -62,7 +62,7 @@ def loading_section():
     """Seção de carregamento"""
     with me.box(style=me.Style(text_align='center', padding=me.Padding.all(40))):
         me.text('🔍 Descobrindo agentes...', style=me.Style(font_size=20, color='#666'))
-        me.text('Verificando portas: 9999, 10000, 10030, 10100, 11000', style=me.Style(color='#888'))
+        me.text('Verificando portas: 12000, 10000, 10030, 10100, 11000', style=me.Style(color='#888'))
 
 
 def error_section(error: str):
@@ -82,7 +82,7 @@ def empty_section():
             'Certifique-se de que há agentes rodando nas portas padrão',
             style=me.Style(color='#888', margin=me.Margin(bottom=20))
         )
-        me.text('Portas verificadas: 9999, 10000, 10030, 10100, 11000', style=me.Style(color='#AAA'))
+        me.text('Portas verificadas: 12000, 10000, 10030, 10100, 11000', style=me.Style(color='#AAA'))
 
 
 def agents_section(agents: List[dict[str, Any]]):
@@ -109,7 +109,7 @@ def render_agent_card(agent: dict[str, Any], index: int):
     
     # Determinar cor baseada na porta
     colors = {
-        9999: '#4CAF50',   # Verde - HelloWorld
+        12000: '#4CAF50',   # Verde - HelloWorld
         10000: '#2196F3',  # Azul - A2A padrão
         10030: '#FF9800',  # Laranja - Marvin
         10100: '#9C27B0',  # Roxo - MCP
@@ -223,7 +223,7 @@ def discover_agents(e):
 
 async def simple_agent_discovery() -> List[dict[str, Any]]:
     """Descoberta simplificada de agentes sem dependências complexas"""
-    ports = [9999, 10000, 10030, 10100, 11000]
+    ports = [12000, 10000, 10030, 10100, 11000]
     endpoints = ["/.well-known/agent.json", "/agent-card", "/info", "/health"]
     
     agents = []

@@ -26,7 +26,7 @@ async def simulate_agent_lifecycle():
     
     # 2. Simular registro de handlers para agentes
     agents = [
-        ("http://localhost:9999", ["handler_abc123", "handler_def456"]),
+        ("http://localhost:12000", ["handler_abc123", "handler_def456"]),
         ("http://localhost:10030", ["handler_ghi789", "handler_jkl012"]),
         ("http://localhost:12000", ["handler_mno345", "handler_pqr678"])
     ]

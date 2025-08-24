@@ -30,14 +30,14 @@ async def force_discovery():
                 print(f"    📝 {agent.description}")
                 
             # Verificar especificamente o Hello World
-            hello_world = await discovery.get_agent_by_port(9999)
+            hello_world = await discovery.get_agent_by_port(12000)
             if hello_world:
                 print(f"\n✅ Hello World Agent está ativo!")
                 print(f"   Nome: {hello_world.name}")
                 print(f"   URL: {hello_world.url}")
                 print(f"   Skills: {len(hello_world.skills)}")
             else:
-                print("\n❌ Hello World Agent NÃO encontrado na porta 9999")
+                print("\n❌ Hello World Agent NÃO encontrado na porta 12000")
                 
         return agents
         

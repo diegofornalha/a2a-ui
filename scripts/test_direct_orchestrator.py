@@ -38,8 +38,8 @@ async def test_directed_message():
         directed_message = "Orchestrator Agent, o que é MCP (Model Context Protocol)?"
         
         message_payload = {
-            "messageId": str(uuid.uuid4()),
-            "contextId": conversation_id,
+            "message_id": str(uuid.uuid4()),
+            "context_id": conversation_id,
             "role": "user",
             "parts": [{"kind": "text", "text": directed_message}]
         }
@@ -133,8 +133,8 @@ async def test_alternative_message():
         specific_message = "Preciso falar com um agente que entenda de MCP e ferramentas de protocolo. Quais são as ferramentas MCP disponíveis?"
         
         message_payload = {
-            "messageId": str(uuid.uuid4()),
-            "contextId": conversation_id,
+            "message_id": str(uuid.uuid4()),
+            "context_id": conversation_id,
             "role": "user",
             "parts": [{"kind": "text", "text": specific_message}]
         }

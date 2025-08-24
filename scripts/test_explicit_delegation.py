@@ -47,8 +47,8 @@ async def test_explicit_delegation():
             print(f"📤 Enviando: {message}")
             
             message_payload = {
-                "messageId": str(uuid.uuid4()),
-                "contextId": conversation_id,
+                "message_id": str(uuid.uuid4()),
+                "context_id": conversation_id,
                 "role": "user",
                 "parts": [{"kind": "text", "text": message}]
             }
@@ -146,8 +146,8 @@ async def test_list_agents_first():
         list_message = "Liste todos os agentes disponíveis"
         
         message_payload = {
-            "messageId": str(uuid.uuid4()),
-            "contextId": conversation_id,
+            "message_id": str(uuid.uuid4()),
+            "context_id": conversation_id,
             "role": "user",
             "parts": [{"kind": "text", "text": list_message}]
         }
@@ -175,8 +175,8 @@ async def test_list_agents_first():
             mcp_message = "Agora envie uma mensagem para o Orchestrator Agent perguntando sobre MCP (Model Context Protocol)"
             
             message_payload_2 = {
-                "messageId": str(uuid.uuid4()),
-                "contextId": conversation_id,
+                "message_id": str(uuid.uuid4()),
+                "context_id": conversation_id,
                 "role": "user",
                 "parts": [{"kind": "text", "text": mcp_message}]
             }

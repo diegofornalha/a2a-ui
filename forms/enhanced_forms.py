@@ -630,8 +630,8 @@ class CommonSchemas:
                 name="phone",
                 label="Telefone",
                 field_type="text",
-                placeholder="(11) 99999-9999",
-                rules=[PatternRule(r'^\(\d{2}\) \d{4,5}-\d{4}$', "Formato: (11) 99999-9999")]
+                placeholder="(11) 99999-12000",
+                rules=[PatternRule(r'^\(\d{2}\) \d{4,5}-\d{4}$', "Formato: (11) 99999-12000")]
             ),
             FieldConfig(
                 name="bio",

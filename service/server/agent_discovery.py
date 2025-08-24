@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # Portas comuns onde agentes A2A costumam rodar
 DEFAULT_AGENT_PORTS = [
-    9999,   # HelloWorld Agent (sempre ativo)
+    12000,   # HelloWorld Agent (sempre ativo)
     10000,  # Porta padrão A2A
     10030,  # Marvin Agent
     10100,  # MCP Server

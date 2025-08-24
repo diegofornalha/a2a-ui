@@ -197,7 +197,7 @@ async def UpdateAppState(state: AppState, conversation_id: str):
         for task in await GetTasks():
             state.task_list.append(
                 SessionTask(
-                    contextId=extract_conversation_id(task),
+                    context_id=extract_conversation_id(task),
                     task=convert_task_to_state(task),
                 )
             )
@@ -238,9 +238,9 @@ def convert_message_to_state(message: Message) -> StateMessage:
         return StateMessage()
 
     return StateMessage(
-        message_id=message.messageId,
-        contextId=message.contextId if message.contextId else '',
-        task_id=message.taskId if message.taskId else '',
+        message_id=message.message_id,
+        context_id=message.context_id if message.context_id else '',
+        task_id=message.task_id if message.task_id else '',
         role=message.role.name,
         content=extract_content(message.parts),
     )
@@ -267,11 +267,11 @@ def convert_task_to_state(task: Task) -> StateTask:
     if not task.history:
         return StateTask(
             task_id=task.id,
-            contextId=task.contextId,
+            context_id=task.context_id,
             state=TaskState.failed.name,
             message=StateMessage(
                 message_id=str(uuid.uuid4()),
-                contextId=task.contextId,
+                context_id=task.context_id,
                 task_id=task.id,
                 role=Role.agent.name,
                 content=[('No history', 'text')],
@@ -284,7 +284,7 @@ def convert_task_to_state(task: Task) -> StateTask:
         output = [extract_content(last_message.parts)] + output
     return StateTask(
         task_id=task.id,
-        contextId=task.contextId,
+        context_id=task.context_id,
         state=str(task.status.state),
         message=convert_message_to_state(message),
         artifacts=output,
@@ -293,7 +293,7 @@ def convert_task_to_state(task: Task) -> StateTask:
 
 def convert_event_to_state(event: Event) -> StateEvent:
     return StateEvent(
-        contextId=extract_message_conversation(event.content),
+        context_id=extract_message_conversation(event.content),
         actor=event.actor,
         role=event.content.role.name,
         id=event.id,
@@ -330,17 +330,17 @@ def extract_content(
 
 
 def extract_message_id(message: Message) -> str:
-    return message.messageId
+    return message.message_id
 
 
 def extract_message_conversation(message: Message) -> str:
-    return message.contextId if message.contextId else ''
+    return message.context_id if message.context_id else ''
 
 
 def extract_conversation_id(task: Task) -> str:
-    if task.contextId:
-        return task.contextId
+    if task.context_id:
+        return task.context_id
     # Tries to find the first conversation id for the message in the task.
     if task.status.message:
-        return task.status.message.contextId or ''
+        return task.status.message.context_id or ''
     return ''

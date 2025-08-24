@@ -77,8 +77,8 @@ class MCPAgentManager(ADKHostManager):
             raise ValueError(f"Agente {agent_name} não encontrado")
         
         agent = self._mcp_agents[agent_name]
-        contextId = message.contextId or str(uuid.uuid4())
-        task_id = message.taskId or str(uuid.uuid4())
+        context_id = message.context_id or str(uuid.uuid4())
+        task_id = message.task_id or str(uuid.uuid4())
         
         # Extrair query da mensagem
         query = ""
@@ -88,12 +88,12 @@ class MCPAgentManager(ADKHostManager):
         
         try:
             # Usar stream do agente MCP
-            async for response_chunk in agent.stream(query, contextId, task_id):
+            async for response_chunk in agent.stream(query, context_id, task_id):
                 # Criar evento para cada chunk de resposta
                 response_message = Message(
-                    messageId=str(uuid.uuid4()),
-                    contextId=contextId,
-                    taskId=task_id,
+                    message_id=str(uuid.uuid4()),
+                    context_id=context_id,
+                    task_id=task_id,
                     role=Role.assistant,
                     parts=[{
                         'kind': 'text',
@@ -117,9 +117,9 @@ class MCPAgentManager(ADKHostManager):
             print(f"Erro ao processar mensagem com agente {agent_name}: {e}")
             # Criar mensagem de erro
             error_message = Message(
-                messageId=str(uuid.uuid4()),
-                contextId=contextId,
-                taskId=task_id,
+                message_id=str(uuid.uuid4()),
+                context_id=context_id,
+                task_id=task_id,
                 role=Role.assistant,
                 parts=[{
                     'kind': 'text', 

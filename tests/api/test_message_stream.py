@@ -106,7 +106,7 @@ class TestMessageStream:
                     "text": "This is a test message that might take longer to process"
                 }
             ],
-            "messageId": "test-msg-long"
+            "message_id": "test-msg-long"
         }
         
         request_data = jsonrpc_request_template.copy()
@@ -144,7 +144,7 @@ class TestMessageStream:
             "message": {
                 "role": "user",
                 "parts": [{"kind": "text", "text": "test"}],
-                "messageId": "test-no-stream"
+                "message_id": "test-no-stream"
             }
         }
         

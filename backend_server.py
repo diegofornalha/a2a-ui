@@ -22,7 +22,7 @@ from service.server.claude_service import get_claude_service
 class Event(BaseModel):
     """Modelo de evento"""
     id: str
-    contextId: str
+    context_id: str
     role: str
     actor: str
     content: List[Dict[str, Any]]
@@ -39,8 +39,8 @@ class Conversation(BaseModel):
 
 class Message(BaseModel):
     """Modelo de mensagem"""
-    messageId: str
-    contextId: str
+    message_id: str
+    context_id: str
     role: str
     parts: List[Dict[str, Any]] = []
 
@@ -48,7 +48,7 @@ class Message(BaseModel):
 class Task(BaseModel):
     """Modelo de tarefa"""
     id: str
-    contextId: str
+    context_id: str
     state: str
     description: str
 
@@ -104,8 +104,8 @@ async def send_message(request: Request):
     message_data = data.get("params", {})
     
     message = Message(
-        messageId=f"msg_{len(messages) + 1}",
-        contextId=message_data.get("contextId", "default"),
+        message_id=f"msg_{len(messages) + 1}",
+        context_id=message_data.get("context_id", "default"),
         role=message_data.get("role", "user"),
         parts=message_data.get("parts", [])
     )
@@ -115,7 +115,7 @@ async def send_message(request: Request):
     # Criar evento associado
     event = Event(
         id=f"event_{len(events) + 1}",
-        contextId=message.contextId,
+        context_id=message.context_id,
         role=message.role,
         actor="user",
         content=message.parts,
@@ -124,7 +124,7 @@ async def send_message(request: Request):
     events.append(event)
     
     # PROCESSAMENTO AUTOMÁTICO DE MENSAGENS EM BACKGROUND
-    print(f"🔄 Iniciando processamento automático para mensagem: {message.messageId}")
+    print(f"🔄 Iniciando processamento automático para mensagem: {message.message_id}")
     
     # Criar task assíncrona para processar em background
     asyncio.create_task(process_message_in_background(message))
@@ -132,8 +132,8 @@ async def send_message(request: Request):
     # Retornar imediatamente sem aguardar processamento
     return {
         "result": {
-            "message_id": message.messageId,
-            "contextId": message.contextId
+            "message_id": message.message_id,
+            "context_id": message.context_id
         }
     }
 
@@ -141,7 +141,7 @@ async def process_message_in_background(message: Message):
     """Processa mensagem em background"""
     try:
         await process_message_automatically(message)
-        print(f"✅ Processamento automático concluído para: {message.messageId}")
+        print(f"✅ Processamento automático concluído para: {message.message_id}")
     except Exception as e:
         print(f"❌ Erro no processamento automático: {e}")
         import traceback
@@ -153,7 +153,7 @@ async def process_message_automatically(message: Message):
     import httpx
     from service.server.claude_service import get_claude_service
     
-    print(f"🔍 Iniciando processamento automático para mensagem: {message.messageId}")
+    print(f"🔍 Iniciando processamento automático para mensagem: {message.message_id}")
     
     # Verificar se é uma mensagem de delegação
     content = ""
@@ -173,15 +173,15 @@ async def process_message_automatically(message: Message):
             claude_service = get_claude_service()
             response = await claude_service.handle_query(
                 query=content,
-                session_id=message.contextId,
-                context={"conversation_id": message.contextId}
+                session_id=message.context_id,
+                context={"conversation_id": message.context_id}
             )
             
             if response.get("success"):
                 # Criar resposta do Claude
                 claude_response = Message(
-                    messageId=f"claude_response_{len(messages) + 1}",
-                    contextId=message.contextId,
+                    message_id=f"claude_response_{len(messages) + 1}",
+                    context_id=message.context_id,
                     role="assistant",
                     parts=[{"type": "text", "text": response.get("content", "")}]
                 )
@@ -190,7 +190,7 @@ async def process_message_automatically(message: Message):
                 # Criar evento para a resposta
                 response_event = Event(
                     id=f"event_{len(events) + 1}",
-                    contextId=message.contextId,
+                    context_id=message.context_id,
                     role="assistant",
                     actor="claude",
                     content=[{"type": "text", "text": response.get("content", "")}],
@@ -203,8 +203,8 @@ async def process_message_automatically(message: Message):
                 print(f"❌ Claude erro: {response.get('error')}")
                 # Criar mensagem de erro
                 error_response = Message(
-                    messageId=f"error_response_{len(messages) + 1}",
-                    contextId=message.contextId,
+                    message_id=f"error_response_{len(messages) + 1}",
+                    context_id=message.context_id,
                     role="assistant",
                     parts=[{"type": "text", "text": f"Desculpe, ocorreu um erro: {response.get('error')}"}]
                 )
@@ -217,8 +217,8 @@ async def process_message_automatically(message: Message):
             
             # Criar mensagem de erro
             error_response = Message(
-                messageId=f"error_response_{len(messages) + 1}",
-                contextId=message.contextId,
+                message_id=f"error_response_{len(messages) + 1}",
+                context_id=message.context_id,
                 role="assistant",
                 parts=[{"type": "text", "text": f"Desculpe, ocorreu um erro ao processar sua mensagem: {str(e)}"}]
             )
@@ -255,9 +255,9 @@ async def process_message_automatically(message: Message):
                             "method": "process_request",
                             "params": {
                                 "query": content,
-                                "conversation_id": message.contextId
+                                "conversation_id": message.context_id
                             },
-                            "id": f"delegation_{message.messageId}"
+                            "id": f"delegation_{message.message_id}"
                         }
                     )
                     
@@ -276,8 +276,8 @@ async def process_message_automatically(message: Message):
                                 result_text = str(result_text)
                             
                             agent_response = Message(
-                                messageId=f"agent_response_{len(messages) + 1}",
-                                contextId=message.contextId,
+                                message_id=f"agent_response_{len(messages) + 1}",
+                                context_id=message.context_id,
                                 role="assistant",
                                 parts=[{"type": "text", "text": result_text}]
                             )
@@ -314,7 +314,7 @@ async def list_messages(request: Request):
     # Filtrar mensagens por conversation_id
     filtered_messages = [
         msg for msg in messages 
-        if msg.contextId == conversation_id
+        if msg.context_id == conversation_id
     ]
     
     return {"result": filtered_messages}
@@ -400,7 +400,7 @@ async def refresh_agents():
     # Simular descoberta de agentes
     discovered_agents = [
         {
-            "url": "http://localhost:9999",
+            "url": "http://localhost:12000",
             "name": "HelloWorld Agent",
             "description": "Agente Hello World",
             "enabled": True,

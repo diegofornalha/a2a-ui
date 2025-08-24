@@ -120,9 +120,9 @@ def run_demo():
     instructions = [
         "1. Inicie um servidor A2A (ex: HelloWorld)",
         "2. Configure a URL no arquivo .env:",
-        "   echo 'A2A_TEST_URL=http://localhost:9999' > .env",
+        "   echo 'A2A_TEST_URL=http://localhost:12000' > .env",
         "3. Execute os testes:",
-        f"   {python_cmd} run_tests.py --url http://localhost:9999 --verbose",
+        f"   {python_cmd} run_tests.py --url http://localhost:12000 --verbose",
         "4. Para testes específicos:",
         f"   {python_cmd} -m pytest test_agent_card.py -v",
         "5. Para debugging:",

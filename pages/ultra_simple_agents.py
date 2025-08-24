@@ -148,7 +148,7 @@ def discover_agents(e):
 async def ultra_simple_discovery() -> List[dict[str, Any]]:
     """Descoberta minimalista sem estilos complexos"""
     print("🔍 ULTRA_SIMPLE_DISCOVERY: Iniciando descoberta...")
-    ports = [9999, 10000, 10030, 10100, 11000]
+    ports = [12000, 10000, 10030, 10100, 11000]
     agents = []
     
     print(f"🚪 Testando portas: {ports}")

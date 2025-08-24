@@ -22,7 +22,7 @@ class TestHelloworldIntegration:
                     "text": "Hello World"
                 }
             ],
-            "messageId": "helloworld-test-001"
+            "message_id": "helloworld-test-001"
         }
     
     def test_helloworld_agent_discovery(self, base_url: str):
@@ -176,7 +176,7 @@ class TestHelloworldIntegration:
             "Goodbye"
         ]
         
-        contextId = "helloworld-conversation-001"
+        context_id = "helloworld-conversation-001"
         
         for i, message_text in enumerate(messages):
             message = {
@@ -187,8 +187,8 @@ class TestHelloworldIntegration:
                         "text": message_text
                     }
                 ],
-                "messageId": f"helloworld-msg-{i+1:03d}",
-                "contextId": contextId
+                "message_id": f"helloworld-msg-{i+1:03d}",
+                "context_id": context_id
             }
             
             request_data = jsonrpc_request_template.copy()
@@ -223,7 +223,7 @@ class TestHelloworldIntegration:
         empty_message = {
             "role": "user",
             "parts": [],  # Sem parts
-            "messageId": "empty-msg"
+            "message_id": "empty-msg"
         }
         
         request_data = jsonrpc_request_template.copy()
@@ -250,7 +250,7 @@ class TestHelloworldIntegration:
                     "text": "Test with invalid role"
                 }
             ],
-            "messageId": "invalid-role-msg"
+            "message_id": "invalid-role-msg"
         }
         
         request_data["params"]["message"] = invalid_message
@@ -320,7 +320,7 @@ class TestHelloworldIntegration:
                         "text": f"Stress test message {i+1}"
                     }
                 ],
-                "messageId": f"stress-{i+1:03d}"
+                "message_id": f"stress-{i+1:03d}"
             }
             
             request_data = jsonrpc_request_template.copy()

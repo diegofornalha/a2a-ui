@@ -91,7 +91,7 @@ def agents_page_simple():
     if state.agents_count > 0:
         me.text('─' * 50)
         me.text('🤖 HelloWorld Agent')
-        me.text('🔗 http://localhost:9999')
+        me.text('🔗 http://localhost:12000')
         me.text('🟢 Status: Online')
         me.text('─' * 50)
         me.text('🤖 Marvin Agent')

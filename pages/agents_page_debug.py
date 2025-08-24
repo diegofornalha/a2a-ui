@@ -157,7 +157,7 @@ def test_simple_debug(e):
         {
             'name': 'HelloWorld Agent',
             'description': 'Agente de teste Hello World',
-            'url': 'http://localhost:9999',
+            'url': 'http://localhost:12000',
             'status': 'online'
         },
         {
@@ -183,8 +183,8 @@ def list_agents_debug(e):
         state.agents = [
             {
                 'name': 'HelloWorld Agent',
-                'description': 'Agente Hello World na porta 9999',
-                'url': 'http://localhost:9999',
+                'description': 'Agente Hello World na porta 12000',
+                'url': 'http://localhost:12000',
                 'status': 'online'
             },
             {
@@ -218,7 +218,7 @@ def refresh_agents_debug(e):
             {
                 'name': 'HelloWorld Agent (Atualizado)',
                 'description': 'Agente Hello World atualizado',
-                'url': 'http://localhost:9999',
+                'url': 'http://localhost:12000',
                 'status': 'online'
             }
         ]

@@ -29,7 +29,7 @@ Este diretório contém testes automatizados para validar a implementação da A
 ### ✅ Message Send (`test_message_send.py`)
 - Envio básico de mensagens via JSON-RPC 2.0
 - Validação de estruturas de requisição/resposta
-- Testes com contexto (contextId)
+- Testes com contexto (context_id)
 - Validação de erros para requisições malformadas
 
 ### ✅ Message Stream (`test_message_stream.py`)

@@ -29,7 +29,7 @@ def sample_message():
                 "text": "Hello, this is a test message"
             }
         ],
-        "messageId": "test-msg-001"
+        "message_id": "test-msg-001"
     }
 
 @pytest.fixture

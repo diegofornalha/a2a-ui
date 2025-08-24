@@ -104,7 +104,7 @@ class TestMessageSend:
         """Testa envio de mensagem com contexto."""
         url = f"{base_url}/message/send"
         
-        # Mensagem com contextId
+        # Mensagem com context_id
         message_with_context = {
             "role": "user",
             "parts": [
@@ -113,8 +113,8 @@ class TestMessageSend:
                     "text": "This is a follow-up message"
                 }
             ],
-            "messageId": "test-msg-002",
-            "contextId": "test-context-001"
+            "message_id": "test-msg-002",
+            "context_id": "test-context-001"
         }
         
         request_data = jsonrpc_request_template.copy()
@@ -131,7 +131,7 @@ class TestMessageSend:
         # Verifica se o contexto é preservado na resposta
         if "result" in response_data:
             result = response_data["result"]
-            if "contextId" in result:
-                assert result["contextId"] == "test-context-001", \
+            if "context_id" in result:
+                assert result["context_id"] == "test-context-001", \
                     "ContextId deve ser preservado"
             print(f"✅ Mensagem com contexto enviada: {result}")

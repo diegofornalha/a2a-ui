@@ -40,8 +40,8 @@ async def send_message(conversation_id: str, message_text: str):
     """Enviar mensagem para a conversa"""
     async with httpx.AsyncClient() as client:
         message_payload = {
-            "messageId": str(uuid.uuid4()),
-            "contextId": conversation_id,
+            "message_id": str(uuid.uuid4()),
+            "context_id": conversation_id,
             "role": "user",
             "parts": [{"kind": "text", "text": message_text}]
         }

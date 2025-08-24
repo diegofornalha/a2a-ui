@@ -35,7 +35,7 @@ async def test_marvin_output():
     
     # Exemplos de teste
     test_cases = [
-        "João Silva, Desenvolvedor na TechCorp, joao.silva@techcorp.com, (11) 99999-9999",
+        "João Silva, Desenvolvedor na TechCorp, joao.silva@techcorp.com, (11) 99999-12000",
         "Maria Santos | Gerente de Vendas | Empresa XYZ | maria@xyz.com.br | +55 21 98765-4321",
         "Dr. Carlos Mendes, cardiologista, carlos@clinica.med.br, telefone (11) 2222-3333"
     ]

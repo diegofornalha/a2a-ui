@@ -128,8 +128,8 @@ class ConversationServer:
         t.start()
         return SendMessageResponse(
             result=MessageInfo(
-                message_id=message.messageId,
-                contextId=message.contextId if message.contextId else '',
+                message_id=message.message_id,
+                context_id=message.context_id if message.context_id else '',
             )
         )
 

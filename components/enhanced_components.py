@@ -147,7 +147,7 @@ def enhanced_dialog(
             position="fixed",
             top=0,
             left=0,
-            z_index=9999,
+            z_index=12000,
             overflow="auto"
         )
     ):

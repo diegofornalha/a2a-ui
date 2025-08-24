@@ -76,7 +76,7 @@ def agent_list_page_standard(app_state: AppState):
                         placeholder='localhost:10000',
                     )
                     me.text(
-                        'Exemplos: localhost:9999, localhost:10030, 192.168.1.100:8080',
+                        'Exemplos: localhost:12000, localhost:10030, 192.168.1.100:8080',
                         style=me.Style(font_size=12, color='#888', font_style='italic')
                     )
                     input_modes_string = ', '.join(state.input_modes)

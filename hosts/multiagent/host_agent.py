@@ -115,7 +115,7 @@ Current agent: {current_agent['active_agent']}
     def check_state(self, context: ReadonlyContext):
         state = context.state
         if (
-            'contextId' in state
+            'context_id' in state
             and 'session_active' in state
             and state['session_active']
             and 'agent' in state
@@ -164,20 +164,20 @@ Current agent: {current_agent['active_agent']}
         client = self.remote_agent_connections[agent_name]
         if not client:
             raise ValueError(f'Client not available for {agent_name}')
-        taskId = state.get('task_id', None)
-        contextId = state.get('contextId', None)
-        messageId = state.get('message_id', None)
+        task_id = state.get('task_id', None)
+        context_id = state.get('context_id', None)
+        message_id = state.get('message_id', None)
         task: Task
-        if not messageId:
-            messageId = str(uuid.uuid4())
+        if not message_id:
+            message_id = str(uuid.uuid4())
         request: MessageSendParams = MessageSendParams(
             id=str(uuid.uuid4()),
             message=Message(
                 role='user',
                 parts=[TextPart(text=message)],
-                messageId=messageId,
-                contextId=contextId,
-                taskId=taskId,
+                message_id=message_id,
+                context_id=context_id,
+                task_id=task_id,
             ),
             configuration=MessageSendConfiguration(
                 acceptedOutputModes=['text', 'text/plain', 'image/png'],
@@ -194,8 +194,8 @@ Current agent: {current_agent['active_agent']}
             TaskState.failed,
             TaskState.unknown,
         ]
-        if task.contextId:
-            state['contextId'] = task.contextId
+        if task.context_id:
+            state['context_id'] = task.context_id
         state['task_id'] = task.id
         if task.status.state == TaskState.input_required:
             # Force user input back

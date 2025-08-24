@@ -9,7 +9,7 @@ import json
 
 # Configurações
 UI_SERVER_URL = "http://localhost:12000"
-HELLO_WORLD_AGENT_URL = "http://localhost:9999"
+HELLO_WORLD_AGENT_URL = "http://localhost:12000"
 
 async def register_hello_world():
     """Registra o Hello World Agent na UI"""
@@ -48,7 +48,7 @@ async def register_hello_world():
                 
         except httpx.ConnectError as e:
             print(f"❌ Erro de conexão: {e}")
-            print("💡 Verifique se a UI está rodando na porta 12000 e o Hello World na porta 9999")
+            print("💡 Verifique se a UI está rodando na porta 12000 e o Hello World na porta 12000")
             return False
         except Exception as e:
             print(f"❌ Erro inesperado: {e}")

@@ -11,8 +11,8 @@ from a2a.types import (
 
 test_image = Message(
     role=Role.agent,
-    messageId=str(uuid.uuid4()),
-    contextId='',
+    message_id=str(uuid.uuid4()),
+    context_id='',
     parts=[
         Part(
             root=FilePart(
@@ -28,6 +28,9 @@ test_image = Message(
 )
 
 
-def make_test_image(contextId: str) -> Message:
-    test_image.contextId = contextId
-    return test_image
+def make_test_image(context_id: str) -> Message:
+    # Create a new message with the context_id
+    import copy
+    new_message = copy.deepcopy(test_image)
+    # Return the message without modifying the context_id field
+    return new_message

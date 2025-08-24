@@ -85,7 +85,7 @@ class WorkflowNode:
         self,
         query: str,
         task_id: str,
-        contextId: str,
+        context_id: str,
     ) -> AsyncIterable[dict[str, any]]:
         logger.info(f'Executing node {self.id}')
         agent_card = None
@@ -100,9 +100,9 @@ class WorkflowNode:
                 'message': {
                     'role': 'user',
                     'parts': [{'kind': 'text', 'text': query}],
-                    'messageId': uuid4().hex,
-                    'taskId': task_id,
-                    'contextId': contextId,
+                    'message_id': uuid4().hex,
+                    'task_id': task_id,
+                    'context_id': context_id,
                 },
             }
             request = SendStreamingMessageRequest(
@@ -167,8 +167,8 @@ class WorkflowGraph:
             node.state = Status.RUNNING
             query = self.graph.nodes[node_id].get('query')
             task_id = self.graph.nodes[node_id].get('task_id')
-            contextId = self.graph.nodes[node_id].get('contextId')
-            async for chunk in node.run_node(query, task_id, contextId):
+            context_id = self.graph.nodes[node_id].get('context_id')
+            async for chunk in node.run_node(query, task_id, context_id):
                 # When the workflow node is paused, do not yeild any chunks
                 # but, let the loop complete.
                 if node.state != Status.PAUSED:
@@ -178,11 +178,11 @@ class WorkflowGraph:
                         isinstance(chunk.root.result, TaskStatusUpdateEvent)
                     ):
                         task_status_event = chunk.root.result
-                        contextId = task_status_event.contextId
+                        context_id = task_status_event.context_id
                         if (
                             task_status_event.status.state
                             == TaskState.input_required
-                            and contextId
+                            and context_id
                         ):
                             node.state = Status.PAUSED
                             self.state = Status.PAUSED

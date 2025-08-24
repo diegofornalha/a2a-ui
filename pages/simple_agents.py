@@ -60,7 +60,7 @@ def render_agents_list(agents: List[Dict[str, Any]]):
                 style=me.Style(font_size=20, color='#666')
             )
             me.text(
-                'Certifique-se de que há agentes rodando nas portas padrão (9999, 10000, 10030, etc.)',
+                'Certifique-se de que há agentes rodando nas portas padrão (12000, 10000, 10030, etc.)',
                 style=me.Style(color='#888', margin=me.Margin(top=8))
             )
         return

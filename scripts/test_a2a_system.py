@@ -35,15 +35,15 @@ async def test_a2a_system():
             # Testa mensagem
             print("💬 Testando envio de mensagem...")
             test_message = Message(
-                messageId=str(uuid.uuid4()),
-                contextId=conversation.conversation_id,
+                message_id=str(uuid.uuid4()),
+                context_id=conversation.conversation_id,
                 role=Role.user,
                 parts=[Part(root=TextPart(text="Olá, como você está?"))]
             )
             
             # Sanitiza a mensagem
             sanitized_message = manager.sanitize_message(test_message)
-            print(f"✅ Mensagem sanitizada: {sanitized_message.messageId}")
+            print(f"✅ Mensagem sanitizada: {sanitized_message.message_id}")
             
             # Lista conversações
             print("📋 Testando listagem de conversações...")

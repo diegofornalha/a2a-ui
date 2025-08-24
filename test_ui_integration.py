@@ -32,8 +32,8 @@ async def test_ui_message_flow():
     
     message_payload = {
         "params": {
-            "messageId": message_id,
-            "contextId": conversation_id,
+            "message_id": message_id,
+            "context_id": conversation_id,
             "role": "user",
             "parts": [
                 {
@@ -90,7 +90,7 @@ async def test_ui_message_flow():
         
         # Filtrar eventos desta conversação
         conv_events = [e for e in events.get("result", []) 
-                      if e.get("contextId") == conversation_id]
+                      if e.get("context_id") == conversation_id]
         print(f"📊 Eventos desta conversação: {len(conv_events)}")
         
         for event in conv_events:

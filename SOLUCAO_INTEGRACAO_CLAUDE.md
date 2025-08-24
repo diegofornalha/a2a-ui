@@ -6,7 +6,7 @@ O Claude SDK estava inicializado corretamente mas não respondia através da int
 ## 🔍 Diagnóstico Realizado
 
 ### Problemas Identificados:
-1. **Erro de Validação Pydantic**: Campo `contextId` vs `context_id`
+1. **Erro de Validação Pydantic**: Campo `context_id` vs `context_id`
 2. **Timeout no Endpoint**: `/message/send` travava aguardando resposta do Claude
 3. **Processamento Síncrono**: Backend bloqueava enquanto Claude processava
 
@@ -17,14 +17,14 @@ O Claude SDK estava inicializado corretamente mas não respondia através da int
 # ANTES (com erro):
 response_event = Event(
     id=f"event_{len(events) + 1}",
-    context_id=message.contextId,  # ❌ Campo errado
+    context_id=message.context_id,  # ❌ Campo errado
     ...
 )
 
 # DEPOIS (corrigido):
 response_event = Event(
     id=f"event_{len(events) + 1}",
-    contextId=message.contextId,  # ✅ Campo correto
+    context_id=message.context_id,  # ✅ Campo correto
     ...
 )
 ```
@@ -55,7 +55,7 @@ async def process_message_in_background(message: Message):
     """Processa mensagem em background"""
     try:
         await process_message_automatically(message)
-        print(f"✅ Processamento concluído: {message.messageId}")
+        print(f"✅ Processamento concluído: {message.message_id}")
     except Exception as e:
         print(f"❌ Erro: {e}")
 ```
@@ -101,7 +101,7 @@ UI (12000) → Backend (8085) → Claude CLI → [TIMEOUT] → ❌ Sem resposta
 ## 🛠️ Arquivos Modificados
 
 1. **backend_server.py**
-   - Linha 186: Correção `contextId`
+   - Linha 186: Correção `context_id`
    - Linhas 126-148: Implementação processamento background
    
 2. **test_ui_integration.py** (novo)
@@ -139,7 +139,7 @@ python test_ui_integration.py
 # Teste manual via curl
 curl -X POST http://localhost:8085/message/send \
   -H "Content-Type: application/json" \
-  -d '{"params": {"contextId": "conv_1", "role": "user", "parts": [{"type": "text", "text": "Olá Claude!"}]}}'
+  -d '{"params": {"context_id": "conv_1", "role": "user", "parts": [{"type": "text", "text": "Olá Claude!"}]}}'
 ```
 
 ### Verificar Logs:
@@ -149,7 +149,7 @@ tail -f backend.log | grep -E "(Claude respondeu|Processamento)"
 
 ## 🔑 Pontos Chave da Solução
 
-1. **Correção de Validação**: Usar nome correto do campo (`contextId`)
+1. **Correção de Validação**: Usar nome correto do campo (`context_id`)
 2. **Processamento Assíncrono**: Não bloquear endpoint esperando Claude
 3. **Background Tasks**: Usar `asyncio.create_task()` para processar em paralelo
 4. **Persistência de Mensagens**: Salvar resposta do Claude no array `messages`

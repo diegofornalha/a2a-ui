@@ -11,7 +11,7 @@ async def trigger_discovery():
     """Aciona descoberta de agentes na UI"""
     
     # Lista de portas conhecidas
-    ports = [9999, 10000, 10030, 10100, 10101, 11000]
+    ports = [12000, 10000, 10030, 10100, 10101, 11000]
     
     async with httpx.AsyncClient() as client:
         print("🔍 Verificando agentes disponíveis...")
@@ -36,11 +36,11 @@ async def trigger_discovery():
         print(f"\n📊 Total: {len(active_agents)} agentes ativos")
         
         # Verificar especificamente o Hello World
-        hello_world_found = any(agent['port'] == 9999 for agent in active_agents)
+        hello_world_found = any(agent['port'] == 12000 for agent in active_agents)
         if hello_world_found:
-            print("✅ Hello World Agent está ATIVO na porta 9999!")
+            print("✅ Hello World Agent está ATIVO na porta 12000!")
         else:
-            print("❌ Hello World Agent NÃO está ativo na porta 9999")
+            print("❌ Hello World Agent NÃO está ativo na porta 12000")
             
         # Tentar fazer uma requisição para a UI descobrir os agentes
         try:

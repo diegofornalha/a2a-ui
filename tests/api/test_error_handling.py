@@ -106,7 +106,7 @@ class TestErrorHandling:
         request_data = jsonrpc_request_template.copy()
         request_data["method"] = "tasks/get"
         request_data["params"] = {
-            "taskId": "non-existent-task-id"
+            "task_id": "non-existent-task-id"
         }
         
         response = requests.post(url, json=request_data, headers=headers)
@@ -132,7 +132,7 @@ class TestErrorHandling:
         request_data = jsonrpc_request_template.copy()
         request_data["method"] = "tasks/pushNotificationConfig/set"
         request_data["params"] = {
-            "taskId": "test-task",
+            "task_id": "test-task",
             "config": {
                 "url": "https://example.com/webhook"
             }
@@ -172,7 +172,7 @@ class TestErrorHandling:
                     }
                 }
             ],
-            "messageId": "test-unsupported-content"
+            "message_id": "test-unsupported-content"
         }
         
         request_data = jsonrpc_request_template.copy()
