@@ -2,8 +2,6 @@
 import logging
 import os
 
-import google.generativeai as genai
-
 from a2a_mcp.common.types import ServerConfig
 
 
@@ -11,12 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 def init_api_key():
-    """Initialize the API key for Google Generative AI."""
-    if not os.getenv('GOOGLE_API_KEY'):
-        logger.error('GOOGLE_API_KEY is not set')
-        raise ValueError('GOOGLE_API_KEY is not set')
-
-    genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+    """
+    NÃO PRECISA de API Key!
+    Usando Claude Code SDK local - sem necessidade de keys externas.
+    Esta função existe apenas para compatibilidade com código legado.
+    """
+    logger.info("Usando Claude Code SDK - não precisa de API Key externa!")
+    # Não faz nada - Claude SDK usa instalação local
+    return True
 
 
 def config_logging():

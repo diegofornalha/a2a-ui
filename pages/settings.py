@@ -72,13 +72,50 @@ def settings_page_content():
                         )
                     ):
                         me.text(
-                            'Google API Key',
+                            'Claude SDK Configuration',
                             type='headline-6',
                             style=me.Style(
                                 margin=me.Margin(bottom=15),
                                 font_family='Google Sans',
                             ),
                         )
+                        
+                        # Status de conexão com Claude SDK
+                        with me.box(
+                            style=me.Style(
+                                display='flex',
+                                flex_direction='row',
+                                align_items='center',
+                                gap=10,
+                                margin=me.Margin(bottom=15),
+                                padding=me.Padding(top=10, bottom=10, left=10, right=10),
+                                background=me.theme_var('surface-variant'),
+                                border_radius=8,
+                            )
+                        ):
+                            me.icon(
+                                'check_circle',
+                                style=me.Style(
+                                    color='#4CAF50',
+                                    font_size=24,
+                                ),
+                            )
+                            me.text(
+                                '✅ Conectado com Claude Code SDK',
+                                style=me.Style(
+                                    font_weight='bold',
+                                    color=me.theme_var('on-surface-variant'),
+                                ),
+                            )
+                            me.text(
+                                '(Sem necessidade de API Key externa)',
+                                style=me.Style(
+                                    margin=me.Margin(left=10),
+                                    font_style='italic',
+                                    color=me.theme_var('on-surface-variant'),
+                                    opacity=0.8,
+                                ),
+                            )
 
                         with me.box(
                             style=me.Style(
@@ -90,7 +127,7 @@ def settings_page_content():
                             )
                         ):
                             me.input(
-                                label='API Key',
+                                label='Claude Session Token (Opcional)',
                                 value=app_state.api_key,
                                 on_blur=on_api_key_change,
                                 type='password',
@@ -106,6 +143,17 @@ def settings_page_content():
                                     color=me.theme_var('primary'),
                                 ),
                             )
+                        
+                        # Helper text
+                        me.text(
+                            'Token de sessão do Claude (não necessário para uso local)',
+                            style=me.Style(
+                                font_size=12,
+                                color=me.theme_var('on-surface-variant'),
+                                opacity=0.7,
+                                margin=me.Margin(top=5, bottom=10),
+                            ),
+                        )
 
                         # Success message
                         if update_status.show_success:

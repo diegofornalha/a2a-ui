@@ -1,0 +1,125 @@
+{
+  "@context": "https://a2aprotocol.ai/context/agent.json",
+  "id": "marvin_contact_extractor",
+  "name": "Marvin Contact Extractor",
+  "description": "Advanced contact information extraction agent using Marvin's structured data extraction capabilities",
+  "version": "1.0.0",
+  "protocol_version": "1.0",
+  "created": "2025-01-25T00:00:00.000Z",
+  "capabilities": {
+    "discovery": true,
+    "communication": true,
+    "cooperation": true,
+    "multimodal": false,
+    "real_time": true,
+    "authentication": "none",
+    "encryption": false,
+    "streaming": true,
+    "structured_extraction": true
+  },
+  "endpoints": {
+    "base_url": "http://localhost:10030",
+    "discovery": "/.well-known/agent.json",
+    "communicate": "/",
+    "health": "/health",
+    "extract": "/extract_contacts"
+  },
+  "skills": [
+    {
+      "id": "EXTRACT_CONTACTS",
+      "name": "Contact Information Extraction",
+      "description": "Extracts structured contact information (name, email, phone, organization, role) from unstructured text",
+      "tags": ["contact info", "structured extraction", "information extraction", "data parsing"],
+      "examples": [
+        "My name is John Doe, email: john@example.com, phone: (555) 123-4567",
+        "Contact Sarah Johnson at sarah.johnson@techcorp.com, she's the CTO",
+        "Extract contact details from this business card text"
+      ]
+    },
+    {
+      "id": "STRUCTURED_DATA_PARSING",
+      "name": "Structured Data Parsing",
+      "description": "Parse unstructured text into structured data models using Marvin's AI extraction",
+      "tags": ["parsing", "structured data", "AI extraction", "text processing"],
+      "examples": [
+        "Parse this customer feedback into structured format",
+        "Extract key information from this document"
+      ]
+    }
+  ],
+  "input_modes": [
+    "text/plain",
+    "application/json",
+    "text"
+  ],
+  "output_modes": [
+    "application/json",
+    "text/plain", 
+    "structured_data"
+  ],
+  "data_models": {
+    "ContactInfo": {
+      "name": "string (required)",
+      "email": "EmailStr (required)",
+      "phone": "string (optional)",
+      "organization": "string (optional)",
+      "role": "string (optional)"
+    }
+  },
+  "interoperability": {
+    "platforms": [
+      "Marvin AI",
+      "Python",
+      "A2A Protocol",
+      "FastAPI"
+    ],
+    "protocols": [
+      "A2A",
+      "HTTP",
+      "JSON"
+    ],
+    "data_formats": [
+      "JSON",
+      "text/plain",
+      "structured_data"
+    ],
+    "frameworks": [
+      "Python",
+      "FastAPI",
+      "Marvin",
+      "Pydantic"
+    ]
+  },
+  "security": {
+    "authentication_methods": [
+      "none"
+    ],
+    "authorization": "open",
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst_limit": 20
+    }
+  },
+  "performance": {
+    "max_concurrent_tasks": 10,
+    "average_response_time_ms": 800,
+    "extraction_accuracy": "95%",
+    "supported_load": "60 req/min"
+  },
+  "monitoring": {
+    "always_on": true,
+    "daemon_monitoring": true,
+    "auto_restart": true,
+    "health_check_interval": 30,
+    "log_retention_days": 7
+  },
+  "metadata": {
+    "project_type": "extraction",
+    "compliance_level": "A2A_1.0",
+    "last_updated": "2025-01-25T00:00:00.000Z",
+    "maintainer": "Marvin Team",
+    "ai_model": "marvin-extraction",
+    "daemon_pid_file": "marvin.pid"
+  }
+}

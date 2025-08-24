@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-MCP Server usando APENAS Claude Code SDK.
-NÃO USA Google API - 100% Claude local.
+MCP Server usando Claude Code SDK ao invés de Google API.
+Integra com Claude para embeddings e busca semântica de agentes.
 """
 
 import json
@@ -17,18 +17,28 @@ from typing import List, Dict, Any, Optional
 
 import numpy as np
 import pandas as pd
+import requests
 
-# APENAS Claude Code SDK - SEM Google!
+# Importar Claude Code SDK
 from claude_code_sdk import (
     ClaudeSDKClient,
     ClaudeCodeOptions,
     query,
     AssistantMessage,
     ResultMessage,
-    TextBlock,
-    CLINotFoundError,
-    ProcessError
+    TextBlock
 )
+
+# Importar AI SDK Provider para funcionalidades adicionais
+try:
+    from ai_sdk_provider_claude_code import (
+        ClaudeCodeProvider,
+        ClaudeCodeLanguageModel,
+        ClaudeCodeSettings
+    )
+except ImportError:
+    print("Aviso: ai_sdk_provider_claude_code não disponível")
+    ClaudeCodeProvider = None
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.utilities.logging import get_logger
@@ -37,10 +47,11 @@ from mcp.server.fastmcp.utilities.logging import get_logger
 logger = get_logger(__name__)
 AGENT_CARDS_DIR = 'agent_cards'
 SQLLITE_DB = 'travel_agency.db'
+PLACES_API_URL = 'https://places.googleapis.com/v1/places:searchText'
 
 
 class ClaudeEmbeddingService:
-    """Serviço para gerar embeddings usando APENAS Claude Code SDK."""
+    """Serviço para gerar embeddings usando Claude Code SDK."""
     
     def __init__(self):
         """Inicializa o serviço de embeddings com Claude."""
@@ -64,7 +75,10 @@ class ClaudeEmbeddingService:
     async def generate_embedding(self, text: str) -> List[float]:
         """
         Gera embeddings para o texto usando Claude.
-        NÃO USA Google - apenas análise do Claude.
+        
+        Como o Claude não fornece embeddings nativos, vamos usar uma estratégia alternativa:
+        1. Pedir ao Claude para analisar e extrair características do texto
+        2. Converter essas características em um vetor numérico
         """
         # Verificar cache
         if text in self.embeddings_cache:
@@ -139,22 +153,6 @@ class ClaudeEmbeddingService:
 embedding_service = ClaudeEmbeddingService()
 
 
-def generate_embeddings(text):
-    """
-    Gera embeddings para o texto usando CLAUDE (não Google!).
-    Mantém compatibilidade com código existente.
-    """
-    # Executa de forma síncrona para compatibilidade
-    loop = asyncio.new_event_loop()
-    try:
-        embedding = loop.run_until_complete(
-            embedding_service.generate_embedding(text)
-        )
-        return embedding
-    finally:
-        loop.close()
-
-
 def load_agent_cards():
     """Carrega agent cards dos arquivos JSON."""
     card_uris = []
@@ -163,33 +161,7 @@ def load_agent_cards():
     
     if not dir_path.is_dir():
         logger.error(f'Diretório de agent cards não encontrado: {AGENT_CARDS_DIR}')
-        # Criar diretório e alguns cards de exemplo
-        dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Criar agent cards de exemplo
-        example_cards = [
-            {
-                "name": "Orchestrator Agent",
-                "description": "Coordena e delega tarefas entre múltiplos agentes",
-                "url": "http://localhost:8001",
-                "capabilities": ["delegation", "coordination", "task_planning"],
-                "version": "1.0.0"
-            },
-            {
-                "name": "Planner Agent",
-                "description": "Planeja e estrutura tarefas complexas",
-                "url": "http://localhost:8002",
-                "capabilities": ["planning", "breakdown", "scheduling"],
-                "version": "1.0.0"
-            }
-        ]
-        
-        for i, card in enumerate(example_cards):
-            card_file = dir_path / f"agent_{i}.json"
-            with open(card_file, 'w') as f:
-                json.dump(card, f, indent=2)
-        
-        logger.info(f'Criados {len(example_cards)} agent cards de exemplo')
+        return card_uris, agent_cards
     
     logger.info(f'Carregando agent cards de: {AGENT_CARDS_DIR}')
     
@@ -211,50 +183,56 @@ def load_agent_cards():
     return card_uris, agent_cards
 
 
-def build_agent_card_embeddings() -> pd.DataFrame:
+async def build_agent_card_embeddings() -> Optional[pd.DataFrame]:
     """
-    Carrega agent cards e gera embeddings usando CLAUDE (não Google!).
+    Carrega agent cards e gera embeddings usando Claude.
     """
     card_uris, agent_cards = load_agent_cards()
+    
+    if not agent_cards:
+        logger.warning("Nenhum agent card encontrado")
+        return None
+    
     logger.info('Gerando embeddings para agent cards com Claude')
     
     try:
-        if agent_cards:
-            df = pd.DataFrame({
-                'card_uri': card_uris,
-                'agent_card': agent_cards
-            })
-            
-            # Gerar embeddings com Claude para cada card
-            df['card_embeddings'] = df.apply(
-                lambda row: generate_embeddings(json.dumps(row['agent_card'])),
-                axis=1
-            )
-            
-            logger.info('Embeddings gerados com sucesso usando Claude')
-            return df
-        else:
-            logger.warning("Nenhum agent card encontrado")
-            return pd.DataFrame()
-            
+        # Inicializar serviço de embeddings
+        await embedding_service.initialize()
+        
+        # Criar DataFrame
+        df = pd.DataFrame({
+            'card_uri': card_uris,
+            'agent_card': agent_cards
+        })
+        
+        # Gerar embeddings para cada card
+        embeddings = []
+        for card in agent_cards:
+            card_text = json.dumps(card)
+            embedding = await embedding_service.generate_embedding(card_text)
+            embeddings.append(embedding)
+        
+        df['card_embeddings'] = embeddings
+        
+        logger.info('Embeddings gerados com sucesso')
+        return df
+        
     except Exception as e:
         logger.error(f'Erro ao gerar embeddings: {e}', exc_info=True)
-        return pd.DataFrame()
+        return None
 
 
 def serve(host, port, transport):
     """
-    Inicializa e executa o servidor MCP com CLAUDE Code SDK.
-    NÃO USA Google API!
+    Inicializa e executa o servidor MCP com Claude Code SDK.
     
     Args:
         host: Hostname ou IP para bind
         port: Porta para bind
         transport: Mecanismo de transporte ('stdio', 'sse', etc)
     """
-    logger.info('Iniciando Agent Cards MCP Server com Claude SDK (SEM Google!)')
+    logger.info('Iniciando Agent Cards MCP Server com Claude SDK')
     
-    # NÃO precisa de GOOGLE_API_KEY!
     # Verificar se Claude está disponível
     try:
         import subprocess
@@ -265,114 +243,135 @@ def serve(host, port, transport):
     
     mcp = FastMCP('agent-cards-claude', host=host, port=port)
     
-    # Inicializar serviço de embeddings
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(embedding_service.initialize())
-    
-    df = build_agent_card_embeddings()
+    # DataFrame global para armazenar embeddings
+    df = None
     
     @mcp.tool(
         name='find_agent',
-        description='Encontra o agent card mais relevante usando CLAUDE para análise semântica.'
+        description='Encontra o agent card mais relevante usando Claude para análise semântica.'
     )
-    def find_agent(query: str) -> str:
+    async def find_agent(query: str) -> str:
         """Encontra o agent card mais relevante baseado em uma consulta."""
-        if df.empty:
-            return json.dumps({
-                "error": "Nenhum agent card disponível",
-                "suggestion": "Adicione agent cards no diretório 'agent_cards/'"
-            })
+        nonlocal df
+        
+        # Carregar embeddings se ainda não carregados
+        if df is None:
+            df = await build_agent_card_embeddings()
+            if df is None:
+                return json.dumps({
+                    "error": "Nenhum agent card disponível",
+                    "suggestion": "Adicione agent cards no diretório 'agent_cards/'"
+                })
         
         try:
-            # Gerar embedding para a query com Claude
-            query_embedding = generate_embeddings(query)
+            # Gerar embedding para a query
+            query_embedding = await embedding_service.generate_embedding(query)
             
             # Calcular similaridade (produto escalar)
-            dot_products = np.dot(
-                np.stack(df['card_embeddings']), 
-                query_embedding
-            )
+            similarities = []
+            for card_embedding in df['card_embeddings']:
+                similarity = np.dot(card_embedding, query_embedding)
+                similarities.append(similarity)
             
             # Encontrar melhor match
-            best_match_index = np.argmax(dot_products)
-            best_score = dot_products[best_match_index]
+            best_match_index = np.argmax(similarities)
+            best_score = similarities[best_match_index]
             
             logger.debug(f'Melhor match para "{query}": índice {best_match_index}, score {best_score:.3f}')
             
             return json.dumps({
                 "agent_card": df.iloc[best_match_index]['agent_card'],
                 "confidence": float(best_score),
-                "uri": df.iloc[best_match_index]['card_uri'],
-                "powered_by": "Claude Code SDK"
+                "uri": df.iloc[best_match_index]['card_uri']
             })
             
         except Exception as e:
             logger.error(f"Erro ao buscar agente: {e}")
             return json.dumps({"error": str(e)})
     
-    @mcp.resource(
-        name='find_resource',
-        description='Encontra recursos usando análise do Claude'
+    @mcp.tool(
+        name='analyze_agent_with_claude',
+        description='Analisa um agent card usando Claude para insights detalhados.'
     )
-    def find_resource(uri: str) -> str:
-        """Encontra e retorna um recurso específico."""
-        logger.debug(f'Buscando recurso: {uri}')
+    async def analyze_agent_with_claude(agent_name: str) -> str:
+        """Usa Claude para analisar profundamente um agent card."""
+        nonlocal df
         
-        if uri.startswith('resource://agent_cards/'):
-            card_name = uri.replace('resource://agent_cards/', '')
-            
+        if df is None:
+            df = await build_agent_card_embeddings()
+            if df is None:
+                return json.dumps({"error": "Nenhum agent card disponível"})
+        
+        try:
+            # Encontrar o agent card pelo nome
+            agent_card = None
             for _, row in df.iterrows():
-                if card_name in row['card_uri']:
-                    return json.dumps({
-                        "agent_card": [row['agent_card']],
-                        "powered_by": "Claude Code SDK"
-                    })
-        
-        return json.dumps({"error": f"Recurso não encontrado: {uri}"})
+                if agent_name.lower() in json.dumps(row['agent_card']).lower():
+                    agent_card = row['agent_card']
+                    break
+            
+            if not agent_card:
+                return json.dumps({"error": f"Agent '{agent_name}' não encontrado"})
+            
+            # Pedir análise ao Claude
+            prompt = f"""
+            Analise este agent card e forneça insights sobre suas capacidades:
+            
+            {json.dumps(agent_card, indent=2)}
+            
+            Responda com:
+            1. Principais capacidades
+            2. Casos de uso ideais
+            3. Limitações conhecidas
+            4. Sugestões de integração
+            """
+            
+            result = await query(prompt)
+            
+            if isinstance(result, ResultMessage):
+                analysis = result.content
+            else:
+                analysis = str(result)
+            
+            return json.dumps({
+                "agent": agent_card.get("name", "Unknown"),
+                "analysis": analysis
+            })
+            
+        except Exception as e:
+            logger.error(f"Erro ao analisar agente: {e}")
+            return json.dumps({"error": str(e)})
     
     @mcp.resource(
-        name='agent_cards/planner_agent',
-        description='Agent card do Planner Agent'
+        name='list_all_agents',
+        description='Lista todos os agent cards disponíveis'
     )
-    def planner_agent_resource() -> str:
-        """Retorna o agent card do Planner Agent."""
-        for _, row in df.iterrows():
-            if 'planner' in json.dumps(row['agent_card']).lower():
-                return json.dumps({
-                    "agent_card": [row['agent_card']],
-                    "powered_by": "Claude Code SDK"
-                })
+    async def list_all_agents() -> str:
+        """Retorna lista de todos os agents disponíveis."""
+        _, agent_cards = load_agent_cards()
         
-        # Card padrão se não encontrado
+        agents_list = []
+        for card in agent_cards:
+            agents_list.append({
+                "name": card.get("name", "Unknown"),
+                "description": card.get("description", ""),
+                "url": card.get("url", "")
+            })
+        
         return json.dumps({
-            "agent_card": [{
-                "name": "Planner Agent",
-                "description": "Planeja e estrutura tarefas complexas",
-                "url": "http://localhost:8002",
-                "capabilities": ["planning", "breakdown", "scheduling"],
-                "version": "1.0.0"
-            }],
-            "powered_by": "Claude Code SDK"
+            "total": len(agents_list),
+            "agents": agents_list
         })
     
-    # Executar servidor
+    # Inicializar servidor
     logger.info(f"Servidor MCP com Claude iniciado em {host}:{port}")
-    logger.info("Usando APENAS Claude Code SDK - SEM Google API!")
+    logger.info("Usando Claude Code SDK para embeddings e análise")
     
+    # Executar servidor
     if transport == 'stdio':
         mcp.run_stdio()
     else:
         mcp.run()
-
-
-def init_api_key():
-    """
-    NÃO PRECISA de API Key!
-    Esta função existe apenas para compatibilidade.
-    """
-    logger.info("Usando Claude Code SDK - não precisa de API Key externa!")
-    return True
 
 
 if __name__ == '__main__':

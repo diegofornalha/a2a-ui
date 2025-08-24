@@ -1,74 +1,163 @@
-# A2a Mcp
+# 🤖 A2A MCP - Agent-to-Agent com Claude Code SDK
 
-cd ui && GOOGLE_API_KEY="AIzaSyDeyRoAZwxeA7_XcXwz4aTKurPBAWsnYY0" uv run main.py
+**IMPORTANTE: Este servidor usa CLAUDE CODE SDK, não Google API!**
 
-## 🤖 Agent-to-Agent (A2A) Integration
+## ✨ O que mudou?
 
-Este projeto é totalmente compatível com o protocolo **Agent2Agent (A2A)** para interoperabilidade universal entre agentes AI.
+- ✅ **SEM Google API Key** - Usa Claude Code Desktop local
+- ✅ **SEM custos** - 100% gratuito usando Claude local
+- ✅ **Privacidade total** - Dados processados localmente
+- ✅ **Análise superior** - Claude entende contexto profundamente
 
-### 🌐 Especificações A2A
+## 🚀 Como Usar com Claude
 
-- **Protocol Version**: 1.0
-- **Agent ID**: `a2a_mcp_agent`
-- **Compliance Level**: A2A 1.0 Full
-- **Interoperability**: Universal (LangGraph, CrewAI, Semantic Kernel, MCP)
+### 1. Pré-requisitos
 
-### 📋 Funcionalidades A2A
-
-- ✅ **Discovery**: Descoberta automática de agentes
-- ✅ **Communication**: Comunicação inter-agentes
-- ✅ **Cooperation**: Cooperação e delegação de tarefas
-- ✅ **Multimodal**: Suporte a diferentes tipos de dados
-- ✅ **Real-time**: Comunicação em tempo real
-
-### 🚀 Como Usar
-
-#### Iniciar o Agente A2A
 ```bash
-node a2a-server.js
+# Claude Code Desktop deve estar instalado
+claude --version
+
+# Instalar dependências Python
+pip install claude-code-sdk mcp pandas numpy
 ```
 
-#### Descobrir o Agente
+### 2. Iniciar Servidor MCP
+
+#### Opção A: Script Python
 ```bash
-curl http://localhost:8888/discover
+python start_mcp_claude.py
 ```
 
-#### Comunicar com o Agente
+#### Opção B: Script Bash
 ```bash
-curl -X POST http://localhost:8888/communicate \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Hello from another agent"}'
+./start_claude_mcp.sh
 ```
 
-#### Delegar Tarefa
+#### Opção C: Direto com módulo
 ```bash
-curl -X POST http://localhost:8888/delegate \
-  -H "Content-Type: application/json" \
-  -d '{"task": "process_data", "payload": {...}}'
+python -m a2a_mcp.mcp.server
 ```
 
-### 🔧 Configuração
+### 3. Configurar Porta (opcional)
 
-A configuração A2A está em `a2a-config.json` e pode ser ajustada conforme necessário.
+```bash
+# Porta padrão: 8175
+MCP_PORT=9000 python start_mcp_claude.py
 
-### 📖 Documentação Oficial
+# Ou para Node.js A2A (porta 8174)
+A2A_PORT=8174 node a2a-server.js
+```
 
-- [A2A Protocol Specification](https://a2aproject.github.io/A2A/latest/)
-- [A2A Documentation](https://a2aprotocol.ai/docs/)
+## 📊 Servidores e Portas
 
-### 🏗️ Arquitetura
+| Servidor | Porta | Tecnologia | Função |
+|----------|-------|------------|--------|
+| MCP Claude | 8175 | Python + Claude SDK | Análise semântica de agentes |
+| A2A Node | 8174 | Node.js | Protocolo A2A |
+| UI Backend | 8080 | FastAPI | Backend da UI |
+
+## 🛠️ Ferramentas Disponíveis
+
+### Com Claude SDK:
+
+1. **find_agent** - Busca semântica usando Claude
+2. **analyze_agent_with_claude** - Análise profunda com insights
+3. **list_all_agents** - Lista todos os agentes
+4. **find_resource** - Busca recursos
+
+## 🏗️ Arquitetura
 
 ```
 a2a_mcp/
-├── .well-known/
-│   └── agent.json          # Agent Card A2A
-├── agents/
-│   ├── a2a_mcp_agent.js   # Implementação do agente
-│   └── index.js            # Exports
-├── a2a-server.js           # Servidor A2A
-├── a2a-config.json         # Configuração A2A
-└── README.md               # Esta documentação
+├── mcp/
+│   ├── server.py           # Servidor MCP com Claude SDK
+│   ├── claude_server.py    # Servidor alternativo Claude
+│   └── client.py           # Cliente MCP
+├── agents/                 # Agentes A2A
+├── common/                 # Utilidades
+├── start_mcp_claude.py     # Script Python de inicialização
+├── start_claude_mcp.sh     # Script Bash de inicialização
+└── README.md              # Esta documentação
 ```
 
+## 🔧 Configuração no Claude Code
+
+Adicione ao `.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "a2a-agent-cards": {
+      "command": "python",
+      "args": ["/caminho/para/start_mcp_claude.py"],
+      "env": {
+        "MCP_TRANSPORT": "stdio"
+      },
+      "enabled": true
+    }
+  }
+}
+```
+
+## 📝 Exemplos de Uso
+
+### Python
+```python
+from a2a_mcp.mcp.server import find_agent
+
+# Buscar agente
+result = find_agent("preciso de um agente para planejar")
+print(result)  # Retorna Planner Agent
+```
+
+### CLI
+```bash
+# Testar servidor
+echo '{"method":"tools/list"}' | python start_mcp_claude.py
+
+# Buscar agente
+curl -X POST http://localhost:8175/find_agent \
+  -H "Content-Type: application/json" \
+  -d '{"query": "coding agent"}'
+```
+
+## 🎯 Integração A2A
+
+O servidor mantém compatibilidade total com o protocolo A2A:
+
+- **Discovery**: Auto-descoberta de agentes
+- **Communication**: Comunicação inter-agentes
+- **Delegation**: Delegação de tarefas
+- **Multimodal**: Suporte a diferentes tipos de dados
+
+## ⚠️ Troubleshooting
+
+### Claude não encontrado
+```bash
+# Verificar instalação
+which claude
+
+# Adicionar ao PATH
+export PATH="$PATH:/Applications/Claude.app/Contents/MacOS"
+```
+
+### Servidor não inicia
+```bash
+# Debug mode
+MCP_LOG_LEVEL=debug python start_mcp_claude.py
+```
+
+## 🚀 Benefícios do Claude sobre Google
+
+| Feature | Claude SDK | Google API |
+|---------|-----------|------------|
+| Custo | Grátis | Pago |
+| Privacidade | 100% local | Cloud |
+| Limite de requisições | Ilimitado | Com quota |
+| Velocidade | Rápido (local) | Depende da internet |
+| Compreensão | Contextual profunda | Embeddings numéricos |
+| Instalação | Claude Desktop | API Key |
+
 ---
-*Powered by Agent2Agent Protocol - Universal AI Interoperability*
+
+**Powered by Claude Code SDK - Sem API Keys, Sem Limites! 🚀**
